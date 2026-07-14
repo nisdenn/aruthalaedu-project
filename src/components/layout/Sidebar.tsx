@@ -26,14 +26,14 @@ const navGroups = [
   {
     label: "Ujian",
     items: [
-      { href: "/assessment", label: "Ujian", icon: ClipboardList },
-      { href: "/library", label: "Bank Soal", icon: BookOpen },
+      { href: "/ujian", label: "Ujian", icon: ClipboardList },
+      { href: "/bank-soal", label: "Bank Soal", icon: BookOpen },
     ],
   },
   {
     label: "Manajemen",
     items: [
-      { href: "/students", label: "Data Siswa", icon: Users },
+      { href: "/data-siswa", label: "Data Siswa", icon: Users },
       { href: "/academic", label: "Akademik", icon: GraduationCap },
       { href: "/reports", label: "Laporan", icon: BarChart2 },
     ],
