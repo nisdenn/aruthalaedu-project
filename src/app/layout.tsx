@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
 interface RootLayoutProps {
@@ -15,6 +16,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
       </head>
       <body className="min-h-screen bg-background text-gray-900 antialiased">
         {children}
+        <Analytics />
       </body>
     </html>
   );
