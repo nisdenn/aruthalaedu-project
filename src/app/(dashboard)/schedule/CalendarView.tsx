@@ -1,4 +1,5 @@
 import { useState } from "react";
+import Link from "next/link";
 import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths } from "date-fns";
 import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import type { Exam, PersonalSchedule } from "@/types";
@@ -70,10 +71,10 @@ export default function CalendarView({ exams, personalSchedules, onAddSchedule }
               
               <div className="flex flex-col gap-1 mt-1 overflow-y-auto max-h-[80px] no-scrollbar">
                 {dayExams.map(exam => (
-                  <div key={exam.id} className="text-[10px] bg-amber-50 text-amber-700 border border-amber-100 px-1.5 py-1 rounded truncate font-medium flex items-center gap-1" title={exam.title}>
+                  <Link href={`/ujian/${exam.id}`} key={exam.id} className="text-[10px] bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-100 hover:border-amber-300 px-1.5 py-1 rounded truncate font-medium flex items-center gap-1 transition-colors cursor-pointer" title={exam.title}>
                     <div className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" />
                     <span className="truncate">{exam.title}</span>
-                  </div>
+                  </Link>
                 ))}
                 {daySchedules.map(sched => (
                   <div key={sched.id} className="text-[10px] bg-green-50 text-green-700 border border-green-100 px-1.5 py-1 rounded truncate font-medium flex items-center gap-1" title={sched.title}>
