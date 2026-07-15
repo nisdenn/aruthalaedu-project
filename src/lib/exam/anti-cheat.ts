@@ -26,6 +26,7 @@ export class ExamAntiCheat {
   onViolation?: ViolationCallback;
   onForceSubmit?: ForceSubmitCallback;
   onLock?: LockCallback;
+  onProctorLock?: (reason: string) => void;
 
   constructor(opts: {
     sessionId: string;
@@ -85,10 +86,10 @@ export class ExamAntiCheat {
       }),
     }).catch(() => {/* non-blocking */});
 
-    // Check threshold → force submit
+    // Check threshold → proctor lock
     const threshold = this.getThreshold(type);
     if (threshold && count >= threshold) {
-      this.onForceSubmit?.(type);
+      this.onProctorLock?.(`Batas toleransi pelanggaran terlampaui (${type} x${count}). Sesi terkunci menunggu pengawas.`);
     }
   }
 

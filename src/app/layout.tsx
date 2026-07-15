@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import "./globals.css";
+import ReminderSystem from "@/components/ReminderSystem";
 
 interface RootLayoutProps {
   children: ReactNode;
@@ -15,6 +16,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
       </head>
       <body className="min-h-screen bg-background text-gray-900 antialiased">
         {children}
+        <ReminderSystem />
       </body>
     </html>
   );

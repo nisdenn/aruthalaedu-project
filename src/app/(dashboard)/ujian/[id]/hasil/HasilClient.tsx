@@ -24,7 +24,7 @@ export default function HasilClient({ examId }: { examId: string }) {
       const supabase = createSafeClient();
       if (!supabase) return;
 
-      const { data: examData } = await supabase.from('exams').select('title, duration_minutes').eq('id', examId).single();
+      const { data: examData } = await supabase.from('exams').select('title, duration_minutes, show_result_after').eq('id', examId).single();
       if (examData) setExamInfo(examData);
 
       // Fetch sessions and profiles
@@ -176,33 +176,40 @@ export default function HasilClient({ examId }: { examId: string }) {
     alert(`Berhasil menilai ${sessionsToGrade.length} ujian secara otomatis.`);
   };
 
+  const [publishing, setPublishing] = useState(false);
+  const handlePublish = async () => {
+    if (!confirm("Publikasikan nilai ke seluruh siswa sekarang?")) return;
+    setPublishing(true);
+    const supabase = createSafeClient();
+    if (supabase) {
+      await supabase.from('exams').update({ show_result_after: 'submit' }).eq('id', examId);
+      setExamInfo((prev: any) => ({ ...prev, show_result_after: 'submit' }));
+      alert("Nilai berhasil dipublikasikan ke siswa.");
+    }
+    setPublishing(false);
+  };
+
   return (
     <div className="p-8 space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <Link href="/ujian" style={{ color: "var(--t2)", border: "1px solid var(--border)", padding: 8, borderRadius: 8, display: "flex" }}>
-            <ArrowLeft size={16} />
+      <div className="card card-padding flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between mb-6">
+        <div className="flex items-start gap-4">
+          <Link href="/ujian" className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#eef5ff] text-[#2f66e9] transition-all hover:bg-[#d8e6fb]">
+            <ArrowLeft size={24} />
           </Link>
           <div>
-            <h1 style={{ fontFamily: "var(--fd)", fontSize: 22, fontWeight: 700 }}>Hasil Ujian</h1>
-            <p style={{ fontSize: 13, color: "var(--t2)" }}>{examInfo?.title || "Memuat..."} · KKM {PASSING} · Exam ID {examId}</p>
+            <h1 className="page-title">Hasil Ujian</h1>
+            <p className="page-subtitle">{examInfo?.title || "Memuat..."} · KKM {PASSING} · Exam ID {examId}</p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 self-start lg:self-auto">
           <button onClick={handleCalculate} disabled={calculating}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all"
-            style={{ background:"var(--accent)",color:"#fff", opacity: calculating ? 0.7 : 1 }}>
+            className="btn-primary flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all">
             {calculating ? "Menilai..." : "Hitung Nilai Otomatis"}
           </button>
           <button onClick={handleExport}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all"
-            style={{ background: "var(--surface)", border: "1px solid var(--border)", color: "var(--t1)" }}>
+            className="btn-outline flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all bg-white">
             <Download size={15} /> Export Excel
-          </button>
-          <button className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all"
-            style={{ background: "var(--surface)", border: "1px solid var(--border)", color: "var(--t1)" }}>
-            <FileDown size={15} /> Export PDF
           </button>
         </div>
       </div>
@@ -257,19 +264,35 @@ export default function HasilClient({ examId }: { examId: string }) {
           </div>
         </div>
 
-        <div className="p-5 rounded-xl" style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
-          <h3 style={{ fontFamily: "var(--fd)", fontSize: 14, fontWeight: 600, marginBottom: 12 }}>Aksi cepat</h3>
+        <div className="card card-padding">
+          <h3 className="text-sm font-semibold text-gray-900 mb-4">Aksi Publikasi</h3>
           <div className="space-y-3">
-            {[
-              { label: "Export Excel", tone: "var(--accent)" },
-              { label: "Export PDF", tone: "var(--green)" },
-              { label: "Kirim pengumuman", tone: "var(--amber)" },
-              { label: "Lock hasil", tone: "var(--red)" },
-            ].map((action) => (
-              <button key={action.label} className="w-full rounded-2xl px-4 py-3 text-left text-sm" style={{ border: "1px solid var(--border)", background: "rgba(255,255,255,0.03)", color: action.tone }}>
-                {action.label}
-              </button>
-            ))}
+            {examInfo?.show_result_after === 'manual' ? (
+              <>
+                <div className="text-xs text-amber-600 bg-amber-50 p-3 rounded-xl border border-amber-200">
+                  Nilai saat ini disembunyikan dari siswa (Menunggu Rilis).
+                </div>
+                <button 
+                  onClick={handlePublish}
+                  disabled={publishing}
+                  className="btn-primary w-full rounded-2xl px-4 py-3 text-sm font-semibold flex items-center justify-center gap-2"
+                >
+                  <CheckCircle size={16} />
+                  {publishing ? "Mempublikasikan..." : "Publikasikan Nilai ke Siswa"}
+                </button>
+              </>
+            ) : (
+              <div className="text-xs text-green-700 bg-green-50 p-3 rounded-xl border border-green-200 flex items-start gap-2">
+                <CheckCircle size={16} className="shrink-0 mt-0.5" />
+                <span>Nilai ujian sudah dipublikasikan dan dapat dilihat oleh siswa di portal mereka.</span>
+              </div>
+            )}
+            
+            <hr className="my-4 border-gray-100" />
+            
+            <button className="btn-outline w-full rounded-2xl px-4 py-3 text-sm font-semibold text-gray-600 flex items-center justify-center gap-2">
+              <Download size={16} /> Export Rekap PDF
+            </button>
           </div>
         </div>
       </div>

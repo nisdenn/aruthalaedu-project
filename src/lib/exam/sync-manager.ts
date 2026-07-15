@@ -58,11 +58,16 @@ export class SyncManager {
         synced_from_offline: true,
       }));
 
+      // BUG FIX: Jika token kosong atau merupakan mock_token, fallback ke anonKey untuk Authorization
+      // karena Supabase REST API akan menolak mock_token dengan 401 Unauthorized.
+      const isMockOrEmpty = !this.opts.token || this.opts.token.includes("mock_token");
+      const bearerToken = isMockOrEmpty ? this.opts.anonKey : this.opts.token;
+
       const res = await fetch(`${this.opts.supabaseUrl}/rest/v1/exam_answers`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${this.opts.token}`,
+          "Authorization": `Bearer ${bearerToken}`,
           "apikey": this.opts.anonKey,
           "Prefer": "resolution=merge-duplicates,return=minimal",
         },

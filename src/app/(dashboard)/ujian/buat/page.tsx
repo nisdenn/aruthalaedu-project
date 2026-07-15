@@ -40,7 +40,7 @@ export default function BuatUjianPage() {
   const [endAt, setEndAt] = useState("");
   const [maxAttempts, setMaxAttempts] = useState(1);
   const [passingScore, setPassingScore] = useState(70);
-  const [showResult, setShowResult] = useState("submit");
+  const [showResult, setShowResult] = useState("manual");
   const [shuffleQ, setShuffleQ] = useState(true);
   const [shuffleOpts, setShuffleOpts] = useState(true);
   const [selectedQ, setSelectedQ] = useState<string[]>([]);

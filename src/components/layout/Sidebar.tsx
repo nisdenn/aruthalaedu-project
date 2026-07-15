@@ -43,10 +43,29 @@ const commonSections: NavSection[] = [
     label: "Overview",
     items: [
       { href: "/overview", label: "Dashboard", icon: LayoutDashboard },
-      { href: "/features", label: "Fitur", icon: ClipboardList },
+      { href: "/features", label: "Fitur & Roadmap", icon: ClipboardList },
       { href: "/notifications", label: "Notifikasi", icon: UserCircle2 },
       { href: "/profile", label: "Profil", icon: UserCircle2 },
       { href: "/settings", label: "Pengaturan", icon: Settings },
+    ],
+  },
+];
+
+const studentSections: NavSection[] = [
+  {
+    label: "Overview Siswa",
+    items: [
+      { href: "/overview", label: "Dashboard Siswa", icon: LayoutDashboard },
+      { href: "/student-hub", label: "Hub Siswa", icon: Users },
+      { href: "/notifications", label: "Notifikasi Saya", icon: UserCircle2 },
+      { href: "/profile", label: "Profil Saya", icon: UserCircle2 },
+    ],
+  },
+  {
+    label: "Akademik & Ujian",
+    items: [
+      { href: "/schedule", label: "Jadwal Ujian", icon: CalendarDays },
+      { href: "/leaderboard", label: "Leaderboard", icon: BarChart2 },
     ],
   },
 ];
@@ -123,19 +142,7 @@ const adminSections: NavSection[] = [
 function getSections(roleGroup: "admin" | "teacher" | "student" | "unknown"): NavSection[] {
   if (roleGroup === "admin") return [...commonSections, ...adminSections];
   if (roleGroup === "teacher") return [...commonSections, ...teacherSections];
-  if (roleGroup === "student") {
-    return [
-      ...commonSections,
-      {
-        label: "Siswa",
-        items: [
-          { href: "/student-hub", label: "Hub Siswa", icon: Users },
-          { href: "/schedule", label: "Schedule", icon: CalendarDays },
-          { href: "/leaderboard", label: "Leaderboard", icon: BarChart2 },
-        ],
-      },
-    ];
-  }
+  if (roleGroup === "student") return studentSections;
   return [...commonSections];
 }
 

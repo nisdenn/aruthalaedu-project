@@ -21,36 +21,41 @@ export default function SiswaLoginPage() {
       const supabase = createClient();
       
       // 1. Verifikasi Sekolah
-      let sekolahData = null;
-      if (sekolah === "sdit-annur-bekasi") {
-        sekolahData = { id: "22222222-2222-2222-2222-222222222222", name: "SDIT An-Nur Bekasi" };
-      } else {
-        const { data: sData, error: sekolahErr } = await supabase
-          .from("sekolah")
-          .select("id, name")
-          .eq("slug", sekolah)
-          .single();
-          
-        if (sekolahErr || !sData) {
-          throw new Error("Kode sekolah tidak ditemukan di sistem.");
-        }
-        sekolahData = sData;
+      const cleanSekolah = sekolah.trim();
+      const cleanNisn = nisn.trim();
+      
+      const { data: sData, error: sekolahErr } = await supabase
+        .from("sekolah")
+        .select("id, name")
+        .eq("slug", cleanSekolah)
+        .single();
+        
+      if (sekolahErr || !sData) {
+        throw new Error("Kode sekolah tidak ditemukan di sistem database.");
       }
+      const sekolahData = sData;
 
       // 2. Verifikasi NISN dari Profile
       const { data: profile, error: profileErr } = await supabase
         .from("profiles")
         .select("id, full_name, nisn, role")
-        .eq("nisn", nisn)
+        .eq("nisn", cleanNisn)
         .eq("role", "SISWA")
         .eq("sekolah_id", sekolahData.id)
         .single();
         
-      if (profileErr || !profile) {
+      if (profileErr) {
+        console.error("Supabase Profile Error:", profileErr);
+        throw new Error(`Database Error: ${profileErr.message}`);
+      }
+      if (!profile) {
         throw new Error("NISN tidak terdaftar di sekolah ini.");
       }
 
       // 3. Login standar (bypass edge function & supabase auth)
+      // Pertama, pastikan tidak ada sesi guru/admin dari Supabase Auth yang masih aktif
+      await supabase.auth.signOut();
+
       // Karena ini simulasi lokal dan RLS/Edge Function di Cloud tidak memungkinkan testing,
       // kita akan langsung set cookie otentikasi lokal untuk mem-bypass middleware
       document.cookie = `siswa_token=mock_token_${profile.id}; path=/; max-age=86400`;

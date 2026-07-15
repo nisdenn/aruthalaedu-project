@@ -7,7 +7,7 @@ export interface UserSession {
   id: string;
   nisn?: string;
   full_name: string;
-  role: "GURU" | "ADMIN" | "SISWA" | "YAYASAN";
+  role: string;
   sekolah_id?: string;
 }
 
@@ -66,5 +66,11 @@ export function useUserRole() {
     getUser();
   }, []);
 
-  return { user, loading, isSiswa: user?.role === "SISWA", isGuru: user?.role === "GURU" || user?.role === "ADMIN" };
+  return {
+    user,
+    loading,
+    isSiswa: user?.role === "SISWA",
+    isGuru: user?.role === "GURU" || user?.role === "ADMIN" || user?.role === "SUPER_ADMIN",
+    isAdmin: user?.role === "ADMIN" || user?.role === "SUPER_ADMIN",
+  };
 }

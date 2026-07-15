@@ -8,6 +8,18 @@ export type Role =
   | "GURU"
   | "SISWA";
 
+export interface PersonalSchedule {
+  id: string;
+  user_id: string;
+  title: string;
+  description?: string;
+  start_time: string;
+  end_time: string;
+  type: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export type Jenjang = "SD" | "SMP" | "SMA" | "SMK";
 
 export type Kurikulum = "k13" | "merdeka";

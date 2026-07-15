@@ -48,6 +48,7 @@ export default function MonitorClient({ examId }: { examId: string }) {
   const [realtimeAvailable, setRealtimeAvailable] = useState(false);
   const [examName, setExamName] = useState("Memuat...");
   const [examStartAt, setExamStartAt] = useState<string | null>(null);
+  const [examEndAt, setExamEndAt] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   const submitted = useMemo(() => sessions.filter((s) => s.status === "submitted").length, [sessions]);
@@ -61,10 +62,11 @@ export default function MonitorClient({ examId }: { examId: string }) {
       const supabase = createSafeClient();
       if (!supabase) return;
 
-      const { data: examData } = await supabase.from('exams').select('title, start_at').eq('id', examId).single();
+      const { data: examData } = await supabase.from('exams').select('title, start_at, end_at').eq('id', examId).single();
       if (examData) {
         setExamName(examData.title);
         setExamStartAt(examData.start_at);
+        setExamEndAt(examData.end_at);
       }
 
       const { count: totalQ } = await supabase.from('exam_questions').select('*', { count: 'exact', head: true }).eq('exam_id', examId);
@@ -85,10 +87,14 @@ export default function MonitorClient({ examId }: { examId: string }) {
       if (sessionData) {
         // Fetch all answers for these sessions to calculate progress
         const sessionIds = sessionData.map(s => s.id);
-        const { data: answersData } = await supabase
-          .from('exam_answers')
-          .select('session_id')
-          .in('session_id', sessionIds);
+        let answersData: any[] = [];
+        if (sessionIds.length > 0) {
+          const { data } = await supabase
+            .from('exam_answers')
+            .select('session_id')
+            .in('session_id', sessionIds);
+          answersData = data || [];
+        }
           
         const answerCounts = (answersData || []).reduce((acc: any, curr: any) => {
           acc[curr.session_id] = (acc[curr.session_id] || 0) + 1;
@@ -254,6 +260,8 @@ export default function MonitorClient({ examId }: { examId: string }) {
     };
   }, [examId]);
 
+  const isEnded = examEndAt ? new Date(examEndAt).getTime() < Date.now() : false;
+
   return (
     <div className="p-8 space-y-6">
       <div className="flex items-center justify-between gap-4">
@@ -267,11 +275,18 @@ export default function MonitorClient({ examId }: { examId: string }) {
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <span className="flex items-center gap-2 px-3 py-1.5 rounded-full text-sm"
-            style={{ background: "var(--green-dim)", color: "#6EE7B7", border: "1px solid rgba(16,185,129,0.25)" }}>
-            <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--green)", display: "inline-block", animation: "blink 2s infinite" }} />
-            LIVE · {formatSeconds(elapsed)} berlalu
-          </span>
+          {isEnded ? (
+            <span className="flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-semibold"
+              style={{ background: "rgba(239, 68, 68, 0.1)", color: "#F87171", border: "1px solid rgba(239, 68, 68, 0.25)" }}>
+              <XCircle size={16} /> BERAKHIR
+            </span>
+          ) : (
+            <span className="flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-semibold"
+              style={{ background: "var(--green-dim)", color: "#6EE7B7", border: "1px solid rgba(16,185,129,0.25)" }}>
+              <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--green)", display: "inline-block", animation: "blink 2s infinite" }} />
+              LIVE · {formatSeconds(elapsed)} berlalu
+            </span>
+          )}
           <span style={{ fontSize: 12, color: realtimeAvailable ? "#6EE7B7" : "var(--t2)", padding: "0 10px" }}>
             {realtimeAvailable ? "Realtime aktif" : "Realtime tidak tersedia"}
           </span>

@@ -195,7 +195,9 @@ function SiswaOverview() {
         
       const [resExams, resHistory] = await Promise.all([p1, p2]);
 
-      setExams(resExams.data || []);
+      const now = new Date();
+      const validExams = (resExams.data || []).filter(e => !e.end_at || new Date(e.end_at) > now);
+      setExams(validExams);
       setHistory(resHistory.data || []);
       setLoading(false);
     }

@@ -23,3 +23,12 @@ Setelah blok `</reasoning_loop>` ditutup, barulah kamu boleh mengeluarkan kode a
 5. **Aturan Integrasi Ganda:** Jika input form ke Supabase diubah, MAKA halaman yang menampilkan tabel dari data tersebut HARUS disinkronisasikan logikanya seketika.
 6. **Injeksi Import React:** Selalu letakkan modul impor di baris teratas secara absolut, di luar blok komponen klien/server.
 7. **Pencatatan History Log (Wajib):** Setiap selesai melakukan modifikasi kode atau fitur baru, kamu WAJIB mencatat rincian pembaruan (apa yang diubah, file apa yang terdampak, dan tujuan perubahannya) ke dalam file `CHANGELOG.md` di *root* proyek. Ini krusial agar mempermudah pelacakan perkembangan dan _rollback_ jika terdapat bug/error di kemudian hari.
+
+## ATURAN NEXT.JS APP ROUTER (WAJIB DIIKUTI)
+- **DILARANG MENGHILANGKAN `children` SECARA KONDISIONAL DI DALAM LAYOUT:** Jangan pernah menggunakan logika seperti `if (loading) return <Spinner />;` di dalam file `layout.tsx` atau komponen pembungkusnya (seperti `AuthGuard` / `RoleGuard`). Hal ini akan menyebabkan Next.js gagal menyertakan file CSS (*CSS chunking bug*) saat SSR, sehingga halaman menjadi tidak memiliki styling (HTML mentah).
+- **SOLUSI LOADING STATE DI LAYOUT:** Jika perlu menahan tampilan saat memuat status otentikasi di sisi klien, tetap render `children` di dalam DOM namun sembunyikan secara visual (contoh: `<div className={loading ? "hidden" : "block"}>{children}</div>`), ATAU cukup gunakan `middleware.ts` untuk proteksi rute, dan biarkan `children` selalu dirender secara absolut.
+  
+
+## ATURAN KEAMANAN DATA & TOKEN (WAJIB DIIKUTI)
+- **DILARANG MENGGUNAKAN MOCK DATA UNTUK AUTENTIKASI API REST:** Jika kamu harus melakukan fetch ke REST API Supabase secara manual (contoh: via fetch), pastikan token yang digunakan adalah token asli. Jika klien menggunakan mock token (seperti untuk akses siswa tanpa autentikasi penuh), kamu **WAJIB** menggunakan anonKey (Kunci Anonim) sebagai fallback pada header Authorization: Bearer anonKey agar request tidak ditolak dengan status 401 Unauthorized oleh PostgREST.
+- **JADWAL & STATUS BERBASIS WAKTU:** Status LIVE atau aktif pada penjadwalan ujian DILARANG hanya berpatokan pada status = 'published'. Selalu komputasi waktu riil (Date.now()) dibandingkan dengan start_at dan end_at untuk menentukan apakah kegiatan masih bisa diakses atau sudah BERAKHIR/SELESAI.

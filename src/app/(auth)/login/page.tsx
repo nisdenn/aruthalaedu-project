@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Shield, Mail, Lock, Eye, EyeOff } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
@@ -11,13 +11,36 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPass, setShowPass] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    const savedEmail = localStorage.getItem("aruthala_saved_email");
+    const isRemembered = localStorage.getItem("aruthala_remember_me") === "true";
+    if (savedEmail && isRemembered) {
+      setEmail(savedEmail);
+      setRememberMe(true);
+    }
+  }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError("");
+
+    // Bersihkan sesi bypass siswa jika ada sebelum masuk sebagai guru
+    localStorage.removeItem("aruthala_siswa_session");
+    document.cookie = "siswa_token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;";
+
+    if (rememberMe) {
+      localStorage.setItem("aruthala_saved_email", email);
+      localStorage.setItem("aruthala_remember_me", "true");
+    } else {
+      localStorage.removeItem("aruthala_saved_email");
+      localStorage.removeItem("aruthala_remember_me");
+    }
+
     const supabase = createClient();
     const { error: err } = await supabase.auth.signInWithPassword({ email, password });
     if (err) {
@@ -82,8 +105,24 @@ export default function LoginPage() {
               </button>
             </div>
 
+            <div className="flex items-center justify-between pt-1">
+              <label className="flex items-center gap-2.5 text-sm text-[#687b98] cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  className="h-4.5 w-4.5 rounded-lg border-[#cbd9ee] text-[#2f66e9] focus:ring-[#2f66e9]/20 transition-all cursor-pointer"
+                />
+                <span className="font-medium">Ingat saya (Remember me)</span>
+              </label>
+
+              <Link href="#" className="text-sm font-semibold text-[#2f66e9] hover:underline">
+                Lupa sandi?
+              </Link>
+            </div>
+
             {error && (
-              <p role="alert" className="text-sm font-medium text-[#f04444]">
+              <p role="alert" className="text-sm font-medium text-[#f04444] pt-1">
                 {error}
               </p>
             )}
@@ -91,7 +130,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading || !email || !password}
-              className="mt-1 w-full rounded-2xl bg-[#2f66e9] py-4 text-base font-semibold text-white shadow-[0_7px_12px_rgba(47,102,233,0.23)] transition-all hover:bg-[#285bd3] hover:shadow-[0_9px_18px_rgba(47,102,233,0.28)] active:translate-y-px disabled:opacity-60 disabled:cursor-not-allowed"
+              className="mt-2 w-full rounded-2xl bg-[#2f66e9] py-4 text-base font-semibold text-white shadow-[0_7px_12px_rgba(47,102,233,0.23)] transition-all hover:bg-[#285bd3] hover:shadow-[0_9px_18px_rgba(47,102,233,0.28)] active:translate-y-px disabled:opacity-60 disabled:cursor-not-allowed"
             >
               {loading ? "Memverifikasi..." : "Masuk"}
             </button>
@@ -104,17 +143,17 @@ export default function LoginPage() {
                 Masuk dengan NISN →
               </Link>
             </p>
-            <p>
-              Sekolah belum terdaftar?{" "}
-              <Link href="/register" className="font-semibold text-[#2f66e9] transition-colors hover:text-[#1c52cf]">
-                Daftar sekarang
+            <p className="text-sm text-[#93a6c2]">
+              Belum punya akun?{" "}
+              <Link href="/register" className="font-semibold text-[#5278c9] hover:underline">
+                Daftar Sekolah Baru
               </Link>
             </p>
           </div>
         </div>
 
-        <p className="mt-8 text-center text-sm text-[#8ea0bb]">
-          © 2026 Aruthala Edu · Keamanan Data UU PDP
+        <p className="mt-8 text-center text-sm font-medium text-[#8da2bf]">
+          © {new Date().getFullYear()} AruthalaEdu. Hak Cipta Dilindungi.
         </p>
       </div>
     </div>

@@ -3,6 +3,7 @@
 import { createContext, useContext, useState } from "react";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
+import RoleGuard from "./RoleGuard";
 
 interface SidebarContextValue {
   sidebarOpen: boolean;
@@ -28,7 +29,7 @@ export default function DashboardShell({ children }: { children: React.ReactNode
         <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
           <Header />
           <main className="flex-1 overflow-y-auto px-6 py-6 lg:px-8">
-            {children}
+            <RoleGuard>{children}</RoleGuard>
           </main>
         </div>
       </div>

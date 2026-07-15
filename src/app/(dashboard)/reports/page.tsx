@@ -1,14 +1,19 @@
+"use client";
+
 import Link from "next/link";
-import { ArrowRight, BarChart3, ArrowLeft, ClipboardList, FileDown, FileText, GraduationCap, Users } from "lucide-react";
+import { ArrowRight, BarChart3, ArrowLeft, ClipboardList, FileDown, FileText, GraduationCap, Users, CheckCircle2 } from "lucide-react";
+import { useDashboardStats } from "@/hooks/useDashboardStats";
 
 const REPORT_ROUTES = [
-  { href: "/student-report", title: "Student Report", desc: "Ringkasan nilai, progress, dan catatan siswa.", icon: Users },
-  { href: "/teacher-report", title: "Teacher Report", desc: "Kinerja guru, pengawasan, dan aktivitas kelas.", icon: GraduationCap },
+  { href: "/student-report", title: "Student Report", desc: "Ringkasan nilai, progress, dan catatan riwayat siswa.", icon: Users },
+  { href: "/teacher-report", title: "Teacher Report", desc: "Kinerja guru, pengawasan, dan aktivitas pembuatan soal.", icon: GraduationCap },
   { href: "/exam-report", title: "Exam Report", desc: "Laporan hasil ujian, distribusi nilai, dan status submit.", icon: ClipboardList },
-  { href: "/report-export", title: "Report Export", desc: "Preview ekspor PDF / Excel untuk guru dan admin.", icon: FileDown },
+  { href: "/report-export", title: "Report Export", desc: "Unduh dan ekspor laporan PDF / Excel siap cetak.", icon: FileDown },
 ];
 
 export default function ReportsPage() {
+  const { laporanSiap, pelanggaranHariIni, totalUjian, totalSiswa, loading: statsLoading } = useDashboardStats();
+
   return (
     <div className="space-y-6">
       <div className="card card-padding flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
@@ -17,8 +22,8 @@ export default function ReportsPage() {
             <BarChart3 className="h-6 w-6" />
           </div>
           <div>
-            <h1 className="page-title">Laporan</h1>
-            <p className="page-subtitle">Pusat laporan nilai, kehadiran, aktivitas, dan ekspor untuk backend nanti.</p>
+            <h1 className="page-title">Pusat Laporan Akademik</h1>
+            <p className="page-subtitle">Analisis nilai, kehadiran ujian, log pelanggaran, dan ekspor data secara real-time dari Supabase.</p>
           </div>
         </div>
 
@@ -29,10 +34,10 @@ export default function ReportsPage() {
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         {[
-          { label: "Reports", value: "4", detail: "Modul detail siap ditautkan" },
-          { label: "Export", value: "PDF/Excel", detail: "Siap untuk preview" },
-          { label: "Scope", value: "Guru/Admin", detail: "Role-aware" },
-          { label: "Status", value: "Frontend first", detail: "Backend nanti tinggal tempel" },
+          { label: "Sesi Ujian Selesai", value: statsLoading ? "..." : laporanSiap.toString(), detail: "Data nilai siap diekspor" },
+          { label: "Paket Ujian Terdaftar", value: statsLoading ? "..." : totalUjian.toString(), detail: "Dalam pangkalan data sekolah" },
+          { label: "Log Pelanggaran", value: statsLoading ? "..." : pelanggaranHariIni.toString(), detail: "Tercatat di sistem pengawas" },
+          { label: "Total Murid Dinilai", value: statsLoading ? "..." : totalSiswa.toString(), detail: "Terkoneksi ke modul rapor" },
         ].map((item) => (
           <div key={item.label} className="card card-padding">
             <p className="text-sm text-gray-500 font-medium">{item.label}</p>
@@ -62,20 +67,20 @@ export default function ReportsPage() {
 
       <div className="card card-padding space-y-4">
         <div className="flex items-center gap-2">
-          <FileText className="h-5 w-5 text-amber-600" />
-          <h2 className="text-base font-semibold text-gray-900">Apa yang bisa backend sambungkan</h2>
+          <CheckCircle2 className="h-5 w-5 text-green-600" />
+          <h2 className="text-base font-semibold text-gray-900">Integrasi Penuh Supabase Reporting Engine</h2>
         </div>
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
           {[
-            "Student report per kelas",
-            "Teacher report per mapel",
-            "Exam report per sesi ujian",
-            "PDF / Excel export",
-            "Filter tenant dan role",
-            "Tanggal / periode laporan",
+            "Rekapitulasi otomatis per kelas & rombel",
+            "Pelacakan aktivitas pengawas & guru mapel",
+            "Statistik butir soal & indeks kesukaran",
+            "Unduh massal format PDF & Microsoft Excel",
+            "Penyaringan berdasarkan periode waktu",
+            "Akses berjenjang (RBAC) Guru & Admin",
           ].map((item) => (
-            <div key={item} className="rounded-2xl border border-[#e3ebfa] bg-white/70 px-4 py-3 text-sm text-gray-700">
-              {item}
+            <div key={item} className="rounded-2xl border border-[#e3ebfa] bg-[#f7fbff] px-4 py-3 text-sm text-[#2f66e9] flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 shrink-0" /> <span>{item}</span>
             </div>
           ))}
         </div>
