@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { ArrowLeft, BadgeCheck, CalendarDays, Mail, School, UserRound } from "lucide-react";
 
-export default function StudentDetailPage({ params }: { params: { id: string } }) {
-  const id = params.id;
+export default async function StudentDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
 
   return (
     <div className="space-y-6">
