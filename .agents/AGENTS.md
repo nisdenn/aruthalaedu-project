@@ -32,3 +32,7 @@ Setelah blok `</reasoning_loop>` ditutup, barulah kamu boleh mengeluarkan kode a
 ## ATURAN KEAMANAN DATA & TOKEN (WAJIB DIIKUTI)
 - **DILARANG MENGGUNAKAN MOCK DATA UNTUK AUTENTIKASI API REST:** Jika kamu harus melakukan fetch ke REST API Supabase secara manual (contoh: via fetch), pastikan token yang digunakan adalah token asli. Jika klien menggunakan mock token (seperti untuk akses siswa tanpa autentikasi penuh), kamu **WAJIB** menggunakan anonKey (Kunci Anonim) sebagai fallback pada header Authorization: Bearer anonKey agar request tidak ditolak dengan status 401 Unauthorized oleh PostgREST.
 - **JADWAL & STATUS BERBASIS WAKTU:** Status LIVE atau aktif pada penjadwalan ujian DILARANG hanya berpatokan pada status = 'published'. Selalu komputasi waktu riil (Date.now()) dibandingkan dengan start_at dan end_at untuk menentukan apakah kegiatan masih bisa diakses atau sudah BERAKHIR/SELESAI.
+
+## ATURAN GIT REPOSITORY (PUSAT & TESTING)
+- **Repositori Pusat:** `https://github.com/nisdenn/aruthalaedu-project` adalah repositori pusat (produksi) milik orang lain. JANGAN `git push` ke repositori ini apabila hanya untuk testing atau eksperimen baru.
+- **Repositori Testing:** `https://github.com/dbzyahya23/aruthalaedu` adalah repositori khusus untuk testing/eksperimen. Selalu gunakan *remote* repositori ini (misal di-*set* sebagai `testing`) saat sedang melakukan pengujian kode yang belum divalidasi penuh.
