@@ -31,6 +31,17 @@ interface ProfileItem {
   sekolah_id?: string;
 }
 
+const LoadingDots = ({ text = "Memuat" }: { text?: string }) => (
+  <div className="input-field-lg bg-gray-50 flex items-center h-[42px] px-3 cursor-not-allowed border border-gray-200 rounded-xl w-full">
+    <span className="text-gray-500 text-sm">{text}</span>
+    <span className="flex space-x-1 ml-1.5 pt-1">
+      <span className="w-1 h-1 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+      <span className="w-1 h-1 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+      <span className="w-1 h-1 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+    </span>
+  </div>
+);
+
 export default function AdminHubPage() {
   const { sekolahAktif, totalSiswa, totalGuru, totalKelas, loading: statsLoading } = useDashboardStats();
   const totalUser = totalSiswa + totalGuru;
@@ -180,8 +191,7 @@ export default function AdminHubPage() {
     try {
       const { data, error } = await supabase.from('sekolah').insert({
         name: sekolahName.trim(),
-        slug: sekolahSlug.trim().toLowerCase().replace(/[^a-z0-9-]/g, '-'),
-        address: sekolahAddress.trim()
+        slug: sekolahSlug.trim().toLowerCase().replace(/[^a-z0-9-]/g, '-')
       }).select().single();
 
       if (error) throw error;
@@ -268,6 +278,7 @@ export default function AdminHubPage() {
             {/* Kategori Target */}
             <div>
               <label className="block text-xs font-bold uppercase tracking-wider text-gray-600 mb-2">1. Target Sasaran Siaran</label>
+              {loadingAnnouncements ? <LoadingDots text="Memuat Target..." /> : (
               <select
                 value={targetType}
                 onChange={(e) => setTargetType(e.target.value as any)}
@@ -279,12 +290,14 @@ export default function AdminHubPage() {
                 <option value="ROLE_GURU">👨‍🏫 KHUSUS GURU & PENGAWAS - Seluruh Guru</option>
                 <option value="PRIVATE">🔒 PRIBADI (PRIVATE) - Spesifik ke 1 Akun Pengguna</option>
               </select>
+              )}
             </div>
 
             {/* Pemilihan Sekolah (Jika SCHOOL/ROLE_SISWA/ROLE_GURU) */}
             {(targetType === "SCHOOL" || targetType === "ROLE_SISWA" || targetType === "ROLE_GURU") && (
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider text-gray-600 mb-2">Pilih Sekolah (Opsional / Filter Tenant)</label>
+                {loadingAnnouncements ? <LoadingDots text="Memuat Sekolah..." /> : (
                 <select
                   value={targetSekolahId}
                   onChange={(e) => setTargetSekolahId(e.target.value)}
@@ -295,6 +308,7 @@ export default function AdminHubPage() {
                     <option key={s.id} value={s.id}>{s.name}</option>
                   ))}
                 </select>
+                )}
               </div>
             )}
 
@@ -302,6 +316,7 @@ export default function AdminHubPage() {
             {targetType === "PRIVATE" && (
               <div className="md:col-span-2">
                 <label className="block text-xs font-bold uppercase tracking-wider text-gray-600 mb-2">Pilih Akun Penerima Pribadi (Siswa / Guru)</label>
+                {loadingAnnouncements ? <LoadingDots text="Memuat Akun..." /> : (
                 <select
                   value={targetUserId}
                   onChange={(e) => setTargetUserId(e.target.value)}
@@ -315,12 +330,14 @@ export default function AdminHubPage() {
                     </option>
                   ))}
                 </select>
+                )}
               </div>
             )}
 
             {/* Kategori / Nada Pesan */}
             <div>
               <label className="block text-xs font-bold uppercase tracking-wider text-gray-600 mb-2">2. Kategori / Prioritas Notifikasi</label>
+              {loadingAnnouncements ? <LoadingDots text="Memuat Kategori..." /> : (
               <select
                 value={type}
                 onChange={(e) => setType(e.target.value as any)}
@@ -331,6 +348,7 @@ export default function AdminHubPage() {
                 <option value="warning">⚠️ Peringatan / Jadwal (Kuning)</option>
                 <option value="alert">🚨 Darurat / Aturan Ujian Ketat (Merah)</option>
               </select>
+              )}
             </div>
           </div>
 
