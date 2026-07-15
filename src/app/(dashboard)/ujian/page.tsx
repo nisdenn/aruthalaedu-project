@@ -64,11 +64,10 @@ export default function UjianPage() {
           <button
             key={f}
             onClick={() => setFilter(f)}
-            className={`px-4 py-2 rounded-2xl text-sm font-medium transition-all border ${
-              filter === f
+            className={`px-4 py-2 rounded-2xl text-sm font-medium transition-all border ${filter === f
                 ? "bg-[#eef5ff] text-[#2f66e9] border-[#d8e6fb]"
                 : "bg-white/70 text-gray-600 border-white/80 hover:bg-white"
-            }`}
+              }`}
           >
             {f}
           </button>
@@ -84,13 +83,12 @@ export default function UjianPage() {
               className="card card-padding flex items-center gap-5 hover:border-[#d8e6fb] transition-all"
             >
               <div
-                className={`w-1 self-stretch rounded-full shrink-0 ${
-                  exam.status === "published"
+                className={`w-1 self-stretch rounded-full shrink-0 ${exam.status === "published"
                     ? "bg-green-500"
                     : exam.status === "draft"
                       ? "bg-gray-300"
                       : "bg-gray-200"
-                }`}
+                  }`}
               />
 
               <div className="flex-1 min-w-0">
@@ -121,9 +119,8 @@ export default function UjianPage() {
                   {exam.avg_score != null && (
                     <div className="text-center">
                       <div
-                        className={`text-xl font-bold ${
-                          exam.avg_score >= 75 ? "text-green-600" : "text-amber-600"
-                        }`}
+                        className={`text-xl font-bold ${exam.avg_score >= 75 ? "text-green-600" : "text-amber-600"
+                          }`}
                       >
                         {Number(exam.avg_score).toFixed(1)}
                       </div>

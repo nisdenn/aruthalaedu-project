@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Shield, Mail, Lock, Eye, EyeOff, Globe2 } from "lucide-react";
+import { Shield, Mail, Lock, Eye, EyeOff } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
 
@@ -28,14 +28,6 @@ export default function LoginPage() {
     router.push("/overview");
   };
 
-  const handleGoogle = async () => {
-    const supabase = createClient();
-    await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: { redirectTo: `${window.location.origin}/overview` },
-    });
-  };
-
   return (
     <div className="relative min-h-screen overflow-hidden bg-[linear-gradient(180deg,#f8fbff_0%,#f5f9ff_100%)] flex items-center justify-center px-4 py-10">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_17%_18%,rgba(194,220,255,0.62),transparent_30%),radial-gradient(circle_at_80%_50%,rgba(202,231,255,0.64),transparent_30%),radial-gradient(circle_at_48%_92%,rgba(255,255,255,0.98),transparent_34%)]" />
@@ -52,21 +44,6 @@ export default function LoginPage() {
         </div>
 
         <div className="w-full rounded-[25px] border border-white/80 bg-white/60 p-8 shadow-[0_24px_70px_rgba(57,111,190,0.16)] backdrop-blur-xl sm:p-9">
-          <button
-            type="button"
-            onClick={handleGoogle}
-            className="flex w-full items-center justify-center gap-3 rounded-2xl border border-[#e6edf5] bg-white/80 px-5 py-4 text-base font-semibold text-[#3c4e68] shadow-[0_2px_3px_rgba(31,58,102,0.02)] transition-colors hover:bg-white"
-          >
-            <Globe2 className="h-5 w-5 text-[#415269]" strokeWidth={2.2} />
-            Masuk dengan Google (Akun Sekolah)
-          </button>
-
-          <div className="my-6 flex items-center gap-4" aria-hidden="true">
-            <div className="h-px flex-1 bg-[#dbe5f1]" />
-            <span className="text-sm text-[#8ca0bc]">atau email</span>
-            <div className="h-px flex-1 bg-[#dbe5f1]" />
-          </div>
-
           <form onSubmit={handleLogin} className="space-y-4">
             <div className="relative">
               <Mail className="pointer-events-none absolute left-5 top-1/2 h-5 w-5 -translate-y-1/2 text-[#91a5bf]" />

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { ArrowLeft, AlertTriangle, Clock, Users, CheckCircle, XCircle } from "lucide-react";
+import { ArrowLeft, AlertTriangle, Clock, Users, CheckCircle, XCircle, ShieldAlert, WifiOff, Activity, TimerReset, PlayCircle } from "lucide-react";
 import Link from "next/link";
 import { formatSeconds } from "@/lib/utils";
 import { createSafeClient } from "@/lib/supabase/client";
@@ -30,6 +30,15 @@ const STATUS_CARD: Record<string, { border: string; bg: string; dot: string }> =
   not_started: { border: "var(--border)", bg: "transparent", dot: "var(--t3)" },
   in_progress: { border: "rgba(88,101,242,0.3)", bg: "var(--accent-dim)", dot: "var(--accent)" },
   submitted: { border: "rgba(16,185,129,0.25)", bg: "var(--green-dim)", dot: "var(--green)" },
+};
+
+const VIOLATION_LABELS: Record<string, string> = {
+  fullscreen_exit: "Fullscreen keluar",
+  tab_blur: "Pindah tab",
+  copy_paste: "Copy/paste",
+  keyboard_shortcut: "Shortcut keyboard",
+  right_click: "Klik kanan",
+  screen_share: "Screen share",
 };
 
 export default function MonitorClient({ examId }: { examId: string }) {
@@ -155,15 +164,33 @@ export default function MonitorClient({ examId }: { examId: string }) {
           ].slice(0, 5));
 
           setSessions((current) => {
-            return current.map((session) =>
-              session.id === sessionId
-                ? {
+            const existing = current.find((session) => session.id === sessionId);
+            if (existing) {
+              return current.map((session) =>
+                session.id === sessionId
+                  ? {
                     ...session,
                     violations: session.violations + 1,
                     is_flagged: true,
                   }
-                : session
-            );
+                  : session
+              );
+            }
+
+            return [
+              {
+                id: sessionId,
+                siswa: `Siswa ${sessionId.slice(-4)}`,
+                nisn: "-",
+                status: "in_progress",
+                progress: 0,
+                total: 20,
+                time_remaining: 0,
+                violations: 1,
+                is_flagged: true,
+              },
+              ...current,
+            ];
           });
         }
       )
@@ -228,15 +255,15 @@ export default function MonitorClient({ examId }: { examId: string }) {
   }, [examId]);
 
   return (
-    <div className="p-8">
-      <div className="flex items-center justify-between mb-6">
+    <div className="p-8 space-y-6">
+      <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-4">
           <Link href="/ujian" style={{ color: "var(--t2)", border: "1px solid var(--border)", padding: "8px", borderRadius: 8, display: "flex" }}>
             <ArrowLeft size={16} />
           </Link>
           <div>
             <h1 style={{ fontFamily: "var(--fd)", fontSize: 22, fontWeight: 700 }}>Live Monitor</h1>
-            <p style={{ fontSize: 13, color: "var(--t2)" }}>{examName} · {sessions.length} siswa</p>
+            <p style={{ fontSize: 13, color: "var(--t2)" }}>{examName} · {sessions.length} siswa · Exam ID {examId}</p>
           </div>
         </div>
         <div className="flex items-center gap-3">
@@ -251,7 +278,7 @@ export default function MonitorClient({ examId }: { examId: string }) {
         </div>
       </div>
 
-      <div className="grid grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
           { label: "Mengerjakan", val: inProgress, icon: Clock, color: "var(--accent)", bg: "var(--accent-dim)" },
           { label: "Selesai", val: submitted, icon: CheckCircle, color: "var(--green)", bg: "var(--green-dim)" },
@@ -268,6 +295,63 @@ export default function MonitorClient({ examId }: { examId: string }) {
             <div style={{ fontFamily: "var(--fd)", fontSize: 28, fontWeight: 800, color }}>{loading ? "-" : val}</div>
           </div>
         ))}
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-3">
+        <div className="rounded-xl p-4 lg:col-span-2" style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <div style={{ fontSize: 13, fontWeight: 600 }}>Status Ringkas</div>
+              <div style={{ fontSize: 11, color: "var(--t3)" }}>Semua sesi, status, dan risk score di satu panel</div>
+            </div>
+            <div className="inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs" style={{ background: "var(--accent-dim)", color: "var(--accent)", border: "1px solid var(--border-a)" }}>
+              <PlayCircle size={13} /> Monitoring aktif
+            </div>
+          </div>
+          <div className="grid gap-3 md:grid-cols-3">
+            {[
+              { title: "Realtime stream", value: realtimeAvailable ? "Connected" : "Connecting", icon: Activity },
+              { title: "Waktu berjalan", value: formatSeconds(elapsed), icon: TimerReset },
+              { title: "Risk flagged", value: String(flagged), icon: ShieldAlert },
+            ].map((item) => {
+              const Icon = item.icon;
+              return (
+                <div key={item.title} className="rounded-2xl p-4" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid var(--border)" }}>
+                  <div className="flex items-center justify-between mb-3">
+                    <span style={{ fontSize: 12, color: "var(--t2)" }}>{item.title}</span>
+                    <Icon size={14} color={realtimeAvailable ? "var(--green)" : "var(--t3)"} />
+                  </div>
+                  <div style={{ fontFamily: "var(--fd)", fontSize: 24, fontWeight: 800 }}>{item.value}</div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="rounded-xl p-4" style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <div style={{ fontSize: 13, fontWeight: 600 }}>Kondisi Koneksi</div>
+              <div style={{ fontSize: 11, color: "var(--t3)" }}>Siswa yang perlu perhatian</div>
+            </div>
+            <WifiOff size={14} color="var(--amber)" />
+          </div>
+          <div className="space-y-3">
+            {sessions.filter((session) => session.is_flagged || session.violations > 0).slice(0, 4).map((session) => (
+              <div key={session.id} className="rounded-2xl p-3" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid var(--border)" }}>
+                <div className="flex items-center justify-between gap-3 mb-1">
+                  <span style={{ fontSize: 13, fontWeight: 600 }}>{session.siswa}</span>
+                  <span style={{ fontSize: 11, color: session.is_flagged ? "var(--amber)" : "var(--t2)" }}>
+                    {session.violations} pelanggaran
+                  </span>
+                </div>
+                <div className="text-xs" style={{ color: "var(--t2)" }}>
+                  {session.status.replace(/_/g, " ")} · sisa {formatSeconds(session.time_remaining)}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
 
       <div className="rounded-xl overflow-hidden" style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
@@ -292,13 +376,17 @@ export default function MonitorClient({ examId }: { examId: string }) {
               <tr><td colSpan={8} className="text-center py-10" style={{ color: "var(--t3)" }}>Belum ada siswa yang mulai ujian.</td></tr>
             ) : sessions.map((r, i) => {
               const isFlagged = r.is_flagged;
+              const card = STATUS_CARD[r.status] ?? STATUS_CARD.not_started;
               return (
-                <tr key={r.id} style={{ borderBottom: "1px solid var(--border)", background: isFlagged ? "rgba(245,158,11,0.04)" : "transparent" }}>
+                <tr key={r.id} style={{ borderBottom: "1px solid var(--border)", background: isFlagged ? "rgba(245,158,11,0.04)" : card.bg }}>
                   <td className="px-5 py-3.5" style={{ color: "var(--t3)" }}>{i + 1}</td>
                   <td className="px-5 py-3.5" style={{ fontWeight: 500 }}>{r.siswa}</td>
                   <td className="px-5 py-3.5" style={{ color: "var(--t2)", fontFamily: "monospace" }}>{r.nisn}</td>
-                  <td className="px-5 py-3.5" style={{ color: isFlagged ? "var(--amber)" : r.status === "submitted" ? "var(--green)" : "var(--t2)" }}>
-                    {r.status === "in_progress" ? "Mengerjakan" : r.status === "submitted" ? "Selesai" : r.status}
+                  <td className="px-5 py-3.5">
+                    <span className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs" style={{ border: `1px solid ${card.border}`, color: isFlagged ? "var(--amber)" : "var(--t2)" }}>
+                      <span className="h-1.5 w-1.5 rounded-full" style={{ background: card.dot }} />
+                      {r.status === "in_progress" ? "Mengerjakan" : r.status === "submitted" ? "Selesai" : "Belum Mulai"}
+                    </span>
                   </td>
                   <td className="px-5 py-3.5" style={{ color: "var(--t2)" }}>{r.progress}/{r.total}</td>
                   <td className="px-5 py-3.5" style={{ color: "var(--t2)", fontVariantNumeric: "tabular-nums" }}>
@@ -332,7 +420,7 @@ export default function MonitorClient({ examId }: { examId: string }) {
             {recentViolations.map((item) => (
               <div key={item.id} className="rounded-2xl p-3" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid var(--border)" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", gap: 8, marginBottom: 4 }}>
-                  <span style={{ fontSize: 12, fontWeight: 600 }}>{item.type.replace(/_/g, " ")}</span>
+                  <span style={{ fontSize: 12, fontWeight: 600 }}>{VIOLATION_LABELS[item.type] ?? item.type.replace(/_/g, " ")}</span>
                   <span style={{ fontSize: 11, color: "var(--t3)" }}>{item.occurredAt}</span>
                 </div>
                 <div style={{ fontSize: 12, color: "var(--t2)" }}>

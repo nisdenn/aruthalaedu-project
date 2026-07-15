@@ -11,58 +11,89 @@ if (!supabaseUrl || !supabaseServiceKey) {
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-async function seedUsers() {
-  console.log("Seeding users...");
+const seedAccounts = [
+  {
+    label: 'Owner',
+    email: process.env.SEED_OWNER_EMAIL,
+    password: process.env.SEED_OWNER_PASSWORD,
+    full_name: 'Owner',
+    role: 'SUPER_ADMIN',
+  },
+  {
+    label: 'Super Admin',
+    email: process.env.SEED_SUPERADMIN_EMAIL,
+    password: process.env.SEED_SUPERADMIN_PASSWORD,
+    full_name: 'Super Admin',
+    role: 'SUPER_ADMIN',
+  },
+  {
+    label: 'Guru',
+    email: process.env.SEED_GURU_EMAIL,
+    password: process.env.SEED_GURU_PASSWORD,
+    full_name: 'Guru An-Nur',
+    role: 'GURU',
+  },
+];
 
-  // Owner / Super Admin
-  const { data: owner, error: ownerError } = await supabase.auth.admin.createUser({
-    email: 'denislapianso@gmail.com',
-    password: 'Aruthala@123',
-    email_confirm: true,
-    user_metadata: {
-      full_name: 'Owner',
-      role: 'SUPER_ADMIN'
-    }
-  });
+function validateSeedUsers(users) {
+  const missing = users.filter((user) => !user.email || !user.password).map((user) => user.label);
+  if (missing.length > 0) {
+    console.error(
+      `Missing seed credentials for: ${missing.join(', ')}. Set the SEED_* variables in .env.local before running this script.`,
+    );
+    process.exit(1);
+  }
+}
 
-  if (ownerError) {
-    if (ownerError.message.includes('already registered')) {
-       console.log("Owner already exists.");
-    } else {
-       console.error("Error creating Owner:", ownerError.message);
-    }
-  } else {
-    console.log("Created Owner:", owner.user.id);
+async function findUserByEmail(email) {
+  const { data, error } = await supabase.auth.admin.listUsers();
+  if (error) {
+    throw error;
   }
 
-  // Super Admin
-  const { data: superAdmin, error: saError } = await supabase.auth.admin.createUser({
-    email: 'superadmin@aruthala.com',
-    password: 'password123',
-    email_confirm: true,
-    user_metadata: {
-      full_name: 'Super Admin',
-      role: 'SUPER_ADMIN'
-    }
-  });
-  const { data: guru, error: gError } = await supabase.auth.admin.createUser({
-    email: 'guru@annur.sch.id',
-    password: 'password123',
-    email_confirm: true,
-    user_metadata: {
-      full_name: 'Guru An-Nur',
-      role: 'GURU'
-    }
-  });
+  return data.users.find((user) => user.email?.toLowerCase() === email.toLowerCase()) || null;
+}
 
-  if (gError) {
-    if (gError.message.includes('already registered')) {
-       console.log("Guru already exists.");
+async function seedUsers() {
+  console.log("Seeding users...");
+  validateSeedUsers(seedAccounts);
+
+  for (const user of seedAccounts) {
+    const existingUser = await findUserByEmail(user.email);
+
+    let result;
+    if (existingUser) {
+      result = await supabase.auth.admin.updateUserById(existingUser.id, {
+        password: user.password,
+        user_metadata: {
+          full_name: user.full_name,
+          role: user.role,
+        },
+        email_confirm: true,
+      });
     } else {
-       console.error("Error creating Guru:", gError.message);
+      result = await supabase.auth.admin.createUser({
+        email: user.email,
+        password: user.password,
+        email_confirm: true,
+        user_metadata: {
+          full_name: user.full_name,
+          role: user.role,
+        },
+      });
     }
-  } else {
-    console.log("Created Guru:", guru.user.id);
+
+    const { data, error } = result;
+
+    if (error) {
+      if (error.message.includes('already registered')) {
+        console.log(`${user.label} already exists.`);
+      } else {
+        console.error(`Error creating ${user.label}:`, error.message);
+      }
+    } else {
+      console.log(`${existingUser ? 'Updated' : 'Created'} ${user.label}:`, data.user.id);
+    }
   }
 
   console.log("Done.");

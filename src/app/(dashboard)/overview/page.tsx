@@ -78,15 +78,14 @@ function AdminOverview() {
                 <p className="text-xs text-gray-400 mt-2">{s.change}</p>
               </div>
               <div
-                className={`w-12 h-12 rounded-2xl flex items-center justify-center ${
-                  s.color === "blue"
+                className={`w-12 h-12 rounded-2xl flex items-center justify-center ${s.color === "blue"
                     ? "bg-[#eef5ff] text-[#2f66e9]"
                     : s.color === "green"
                       ? "bg-green-50 text-green-600"
                       : s.color === "amber"
                         ? "bg-amber-50 text-amber-600"
                         : "bg-purple-50 text-purple-600"
-                }`}
+                  }`}
               >
                 <s.icon className="w-5 h-5" />
               </div>

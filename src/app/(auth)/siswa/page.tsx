@@ -141,7 +141,7 @@ export default function SiswaLoginPage() {
               disabled={loading || nisn.length !== 10 || !dob || !sekolah}
               className="w-full rounded-2xl bg-[#2f66e9] py-4 text-base font-semibold text-white shadow-[0_7px_12px_rgba(47,102,233,0.23)] transition-all hover:bg-[#285bd3] disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              {loading ? "Memverifikasi..." : "Masuk dan Mulai Ujian"}
+              {loading ? "Memverifikasi..." : "Masuk"}
             </button>
           </form>
 

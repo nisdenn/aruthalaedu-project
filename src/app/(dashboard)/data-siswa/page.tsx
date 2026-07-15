@@ -122,9 +122,9 @@ export default function SiswaPage() {
                     <span className="badge-success">Aktif</span>
                   </td>
                   <td className="px-5 py-3.5">
-                    <button className="text-xs text-blue-600 hover:text-blue-700 font-medium">
+                    <Link href={`/data-siswa/${s.id}`} className="text-xs text-blue-600 hover:text-blue-700 font-medium">
                       Detail
-                    </button>
+                    </Link>
                   </td>
                 </tr>
               ))

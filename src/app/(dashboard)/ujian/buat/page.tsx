@@ -165,7 +165,7 @@ export default function BuatUjianPage() {
               <div className="space-y-4">
                 <div>
                   <label style={{ fontSize: 12, color: "var(--t3)", display: "block", marginBottom: 6 }}>Judul Ujian *</label>
-                    <input value={title} onChange={e => setTitle(e.target.value)} placeholder="cth: UTS Matematika Kelas 9A" style={inp} />
+                  <input value={title} onChange={e => setTitle(e.target.value)} placeholder="cth: UTS Matematika Kelas 9A" style={inp} />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
@@ -187,7 +187,7 @@ export default function BuatUjianPage() {
                   <div>
                     <label style={{ fontSize: 12, color: "var(--t3)", display: "block", marginBottom: 6 }}>Maks. Percobaan</label>
                     <select value={maxAttempts} onChange={e => setMaxAttempts(Number(e.target.value))} style={{ ...inp, cursor: "pointer" }}>
-                      {[1,2,3].map(n => <option key={n} value={n}>{n}x</option>)}
+                      {[1, 2, 3].map(n => <option key={n} value={n}>{n}x</option>)}
                     </select>
                   </div>
                   <div>

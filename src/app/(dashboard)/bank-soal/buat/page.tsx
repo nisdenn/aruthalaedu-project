@@ -32,8 +32,8 @@ export default function BuatSoalPage() {
   const [mapel, setMapel] = useState("");
   const [tingkat, setTingkat] = useState("9");
   const [topik, setTopik] = useState("");
-  const [difficulty, setDifficulty] = useState<"mudah"|"sedang"|"sulit">("sedang");
-  const [scope, setScope] = useState<"private"|"sekolah"|"yayasan">("sekolah");
+  const [difficulty, setDifficulty] = useState<"mudah" | "sedang" | "sulit">("sedang");
+  const [scope, setScope] = useState<"private" | "sekolah" | "yayasan">("sekolah");
   const [kurikulum, setKurikulum] = useState("merdeka");
   const [saving, setSaving] = useState(false);
 
@@ -51,7 +51,7 @@ export default function BuatSoalPage() {
     setOptions(options.map(o => o.id === id ? { ...o, text } : o));
   };
   const addOption = () => {
-    const ids = ["a","b","c","d","e","f"];
+    const ids = ["a", "b", "c", "d", "e", "f"];
     setOptions([...options, { id: ids[options.length] ?? String(options.length), text: "", is_correct: false }]);
   };
   const removeOption = (id: string) => {
@@ -250,7 +250,7 @@ export default function BuatSoalPage() {
             <div>
               <label style={{ fontSize: 12, color: "var(--t3)", display: "block", marginBottom: 6 }}>Kelas</label>
               <select value={tingkat} onChange={e => setTingkat(e.target.value)} style={{ ...inputStyle, cursor: "pointer" }}>
-                {Array.from({length:12},(_,i)=>i+1).map(n => <option key={n} value={n}>Kelas {n}</option>)}
+                {Array.from({ length: 12 }, (_, i) => i + 1).map(n => <option key={n} value={n}>Kelas {n}</option>)}
               </select>
             </div>
             <div>

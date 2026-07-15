@@ -171,9 +171,9 @@ export default function BankSoalPage() {
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right">
                   <div className="flex items-center justify-end gap-2">
-                    <button className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                    <Link href={`/bank-soal/${q.id}`} className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors inline-flex items-center justify-center">
                       <Eye className="w-4 h-4" />
-                    </button>
+                    </Link>
                     <button className="p-2 text-gray-400 hover:text-orange-600 hover:bg-orange-50 rounded-lg transition-colors">
                       <Edit2 className="w-4 h-4" />
                     </button>
@@ -199,11 +199,10 @@ export default function BankSoalPage() {
             {["1", "2", "3", "...", "16"].map((p) => (
               <button
                 key={p}
-                className={`w-8 h-8 rounded-lg text-sm flex items-center justify-center transition-colors ${
-                  p === "1"
+                className={`w-8 h-8 rounded-lg text-sm flex items-center justify-center transition-colors ${p === "1"
                     ? "bg-[#2f66e9] text-white"
                     : "text-gray-600 hover:bg-white"
-                }`}
+                  }`}
               >
                 {p}
               </button>
