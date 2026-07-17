@@ -8,7 +8,7 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
 -- ── YAYASAN ──────────────────────────────────────────────────
-CREATE TABLE yayasan (
+CREATE TABLE IF NOT EXISTS yayasan (
     id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name            VARCHAR(255) NOT NULL,
     slug            VARCHAR(100) NOT NULL UNIQUE,
@@ -26,7 +26,7 @@ CREATE TABLE yayasan (
 );
 
 -- ── SEKOLAH ──────────────────────────────────────────────────
-CREATE TABLE sekolah (
+CREATE TABLE IF NOT EXISTS sekolah (
     id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     yayasan_id      UUID NOT NULL REFERENCES yayasan(id) ON DELETE CASCADE,
     name            VARCHAR(255) NOT NULL,
@@ -46,7 +46,7 @@ CREATE TABLE sekolah (
 );
 
 -- ── PROFILES (extends auth.users) ────────────────────────────
-CREATE TABLE profiles (
+CREATE TABLE IF NOT EXISTS profiles (
     id              UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
     yayasan_id      UUID REFERENCES yayasan(id) ON DELETE CASCADE,
     sekolah_id      UUID REFERENCES sekolah(id) ON DELETE CASCADE,
@@ -66,7 +66,7 @@ CREATE TABLE profiles (
 );
 
 -- ── KELAS ────────────────────────────────────────────────────
-CREATE TABLE kelas (
+CREATE TABLE IF NOT EXISTS kelas (
     id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     sekolah_id      UUID NOT NULL REFERENCES sekolah(id) ON DELETE CASCADE,
     yayasan_id      UUID NOT NULL REFERENCES yayasan(id),
@@ -80,7 +80,7 @@ CREATE TABLE kelas (
 );
 
 -- ── QUESTIONS (Bank Soal) ─────────────────────────────────────
-CREATE TABLE questions (
+CREATE TABLE IF NOT EXISTS questions (
     id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     yayasan_id      UUID REFERENCES yayasan(id) ON DELETE CASCADE,
     sekolah_id      UUID REFERENCES sekolah(id) ON DELETE CASCADE,
@@ -102,11 +102,11 @@ CREATE TABLE questions (
 );
 
 -- Full-text search index on question content
-CREATE INDEX idx_questions_fts ON questions USING gin(to_tsvector('indonesian', content->>'text'));
-CREATE INDEX idx_questions_sekolah_mapel ON questions(sekolah_id, mata_pelajaran, tingkat);
+CREATE INDEX IF NOT EXISTS idx_questions_fts ON questions USING gin(to_tsvector('indonesian', content->>'text'));
+CREATE INDEX IF NOT EXISTS idx_questions_sekolah_mapel ON questions(sekolah_id, mata_pelajaran, tingkat);
 
 -- ── EXAMS ────────────────────────────────────────────────────
-CREATE TABLE exams (
+CREATE TABLE IF NOT EXISTS exams (
     id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     sekolah_id          UUID NOT NULL REFERENCES sekolah(id) ON DELETE CASCADE,
     yayasan_id          UUID NOT NULL REFERENCES yayasan(id),
@@ -132,10 +132,10 @@ CREATE TABLE exams (
     updated_at          TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_exams_sekolah_status ON exams(sekolah_id, status);
+CREATE INDEX IF NOT EXISTS idx_exams_sekolah_status ON exams(sekolah_id, status);
 
 -- ── EXAM QUESTIONS ───────────────────────────────────────────
-CREATE TABLE exam_questions (
+CREATE TABLE IF NOT EXISTS exam_questions (
     id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     exam_id     UUID NOT NULL REFERENCES exams(id) ON DELETE CASCADE,
     question_id UUID NOT NULL REFERENCES questions(id),
@@ -145,7 +145,7 @@ CREATE TABLE exam_questions (
 );
 
 -- ── EXAM SESSIONS ────────────────────────────────────────────
-CREATE TABLE exam_sessions (
+CREATE TABLE IF NOT EXISTS exam_sessions (
     id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     exam_id         UUID NOT NULL REFERENCES exams(id),
     siswa_id        UUID NOT NULL REFERENCES profiles(id),
@@ -170,12 +170,12 @@ CREATE TABLE exam_sessions (
     UNIQUE(exam_id, siswa_id, attempt_number)
 );
 
-CREATE INDEX idx_sessions_exam ON exam_sessions(exam_id, status);
-CREATE INDEX idx_sessions_siswa ON exam_sessions(siswa_id);
-CREATE INDEX idx_sessions_sekolah ON exam_sessions(sekolah_id);
+CREATE INDEX IF NOT EXISTS idx_sessions_exam ON exam_sessions(exam_id, status);
+CREATE INDEX IF NOT EXISTS idx_sessions_siswa ON exam_sessions(siswa_id);
+CREATE INDEX IF NOT EXISTS idx_sessions_sekolah ON exam_sessions(sekolah_id);
 
 -- ── EXAM ANSWERS ─────────────────────────────────────────────
-CREATE TABLE exam_answers (
+CREATE TABLE IF NOT EXISTS exam_answers (
     id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     session_id          UUID NOT NULL REFERENCES exam_sessions(id) ON DELETE CASCADE,
     question_id         UUID NOT NULL REFERENCES questions(id),
@@ -188,10 +188,10 @@ CREATE TABLE exam_answers (
     UNIQUE(session_id, question_id)
 );
 
-CREATE INDEX idx_answers_session ON exam_answers(session_id);
+CREATE INDEX IF NOT EXISTS idx_answers_session ON exam_answers(session_id);
 
 -- ── EXAM VIOLATIONS (Anti-Cheat Log) ────────────────────────
-CREATE TABLE exam_violations (
+CREATE TABLE IF NOT EXISTS exam_violations (
     id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     session_id      UUID NOT NULL REFERENCES exam_sessions(id) ON DELETE CASCADE,
     siswa_id        UUID NOT NULL REFERENCES profiles(id),
@@ -205,11 +205,11 @@ CREATE TABLE exam_violations (
     -- Append-only: no updated_at
 );
 
-CREATE INDEX idx_violations_session ON exam_violations(session_id, violation_type);
-CREATE INDEX idx_violations_exam ON exam_violations(exam_id, occurred_at DESC);
+CREATE INDEX IF NOT EXISTS idx_violations_session ON exam_violations(session_id, violation_type);
+CREATE INDEX IF NOT EXISTS idx_violations_exam ON exam_violations(exam_id, occurred_at DESC);
 
 -- ── AUDIT LOGS ───────────────────────────────────────────────
-CREATE TABLE audit_logs (
+CREATE TABLE IF NOT EXISTS audit_logs (
     id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     yayasan_id      UUID REFERENCES yayasan(id),
     sekolah_id      UUID REFERENCES sekolah(id),
@@ -225,10 +225,10 @@ CREATE TABLE audit_logs (
     created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_audit_yayasan ON audit_logs(yayasan_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_audit_yayasan ON audit_logs(yayasan_id, created_at DESC);
 
 -- ── PARTNER API KEYS ─────────────────────────────────────────
-CREATE TABLE partner_api_keys (
+CREATE TABLE IF NOT EXISTS partner_api_keys (
     id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     partner_name    VARCHAR(100) NOT NULL,
     api_key_hash    VARCHAR(64) NOT NULL UNIQUE,
