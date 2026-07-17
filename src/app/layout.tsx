@@ -8,7 +8,7 @@ interface RootLayoutProps {
 
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
-    <html lang="id" style={{ colorScheme: "light only" }}>
+    <html lang="id" style={{ colorScheme: "only light" }}>
       <head>
         <meta name="theme-color" content="#2563EB" />
         <link rel="manifest" href="/manifest.json" />
