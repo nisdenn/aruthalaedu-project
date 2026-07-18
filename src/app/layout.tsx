@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import "./globals.css";
+import GlobalErrorBoundary from "@/components/GlobalErrorBoundary";
 import ReminderSystem from "@/components/ReminderSystem";
 
 interface RootLayoutProps {
@@ -15,8 +16,10 @@ export default function RootLayout({ children }: RootLayoutProps) {
         <link rel="icon" href="/icons/icon.svg" />
       </head>
       <body className="min-h-screen bg-background text-gray-900 antialiased">
-        {children}
-        <ReminderSystem />
+        <GlobalErrorBoundary>
+          {children}
+          <ReminderSystem />
+        </GlobalErrorBoundary>
       </body>
     </html>
   );

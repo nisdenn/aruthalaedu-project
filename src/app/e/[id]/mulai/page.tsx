@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, useCallback, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ShieldCheck, AlertTriangle, CheckCircle2, Clock, ArrowLeft, ArrowRight, Bookmark, Check, ShieldAlert, WifiOff, FileText, Send, Lock } from "lucide-react";
 import { ExamAntiCheat } from "@/lib/exam/anti-cheat";
-import { saveAnswer } from "@/lib/exam/offline-storage";
+import { saveAnswer, getLocalAnswers } from "@/lib/exam/offline-storage";
 import { SyncManager } from "@/lib/exam/sync-manager";
 import { formatSeconds } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
@@ -101,6 +101,16 @@ function ExamRoomClient({ params }: { params: Promise<{ id: string }> }) {
     window.addEventListener("online", goOnline);
     window.addEventListener("offline", goOffline);
     setIsOffline(!navigator.onLine);
+
+    // Muat jawaban lokal jika ada (Offline Resilience)
+    const localAnswers = getLocalAnswers(data.session_id);
+    const restoredAnswers: Record<string, AnswerVal> = {};
+    for (const [qid, item] of Object.entries(localAnswers)) {
+      restoredAnswers[qid] = item.answer as AnswerVal;
+    }
+    if (Object.keys(restoredAnswers).length > 0) {
+      setAnswers(restoredAnswers);
+    }
 
     const ac = new ExamAntiCheat({
       sessionId: data.session_id,

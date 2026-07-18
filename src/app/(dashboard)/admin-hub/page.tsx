@@ -67,6 +67,7 @@ export default function AdminHubPage() {
   const [sekolahName, setSekolahName] = useState("");
   const [sekolahSlug, setSekolahSlug] = useState("");
   const [sekolahAddress, setSekolahAddress] = useState("");
+  const [sekolahJenjang, setSekolahJenjang] = useState("SMA");
   const [registeringSchool, setRegisteringSchool] = useState(false);
   const [schoolSuccess, setSchoolSuccess] = useState("");
   const [schoolError, setSchoolError] = useState("");
@@ -190,8 +191,11 @@ export default function AdminHubPage() {
     const supabase = createClient();
     try {
       const { data, error } = await supabase.from('sekolah').insert({
+        yayasan_id: '11111111-1111-1111-1111-111111111111', // Default yayasan
         name: sekolahName.trim(),
-        slug: sekolahSlug.trim().toLowerCase().replace(/[^a-z0-9-]/g, '-')
+        slug: sekolahSlug.trim().toLowerCase().replace(/[^a-z0-9-]/g, '-'),
+        jenjang: sekolahJenjang,
+        alamat: sekolahAddress.trim() || null
       }).select().single();
 
       if (error) throw error;
@@ -486,9 +490,20 @@ export default function AdminHubPage() {
                 <input type="text" value={sekolahSlug} onChange={e => setSekolahSlug(e.target.value)} required className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#2f66e9]/20 transition-all font-mono" placeholder="sman-1-jkt" />
               </div>
             </div>
-            <div>
-              <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1.5">Alamat (Opsional)</label>
-              <input type="text" value={sekolahAddress} onChange={e => setSekolahAddress(e.target.value)} className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#2f66e9]/20 transition-all" placeholder="Alamat lengkap sekolah" />
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1.5">Jenjang</label>
+                <select value={sekolahJenjang} onChange={e => setSekolahJenjang(e.target.value)} className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#2f66e9]/20 transition-all">
+                  <option value="SD">SD</option>
+                  <option value="SMP">SMP</option>
+                  <option value="SMA">SMA</option>
+                  <option value="SMK">SMK</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1.5">Alamat (Opsional)</label>
+                <input type="text" value={sekolahAddress} onChange={e => setSekolahAddress(e.target.value)} className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#2f66e9]/20 transition-all" placeholder="Alamat lengkap sekolah" />
+              </div>
             </div>
             <button type="submit" disabled={registeringSchool} className="btn-primary w-full sm:w-auto px-6 py-2.5 text-xs rounded-xl shadow-sm">
               {registeringSchool ? "Menyimpan..." : "Daftarkan Sekolah"}
