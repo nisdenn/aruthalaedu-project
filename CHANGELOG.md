@@ -122,6 +122,11 @@ Semua perubahan (Updates, Bug Fixes, New Features) pada Dasbor AruthalaEdu akan 
 - **Komponen/Fungsi:** Modifikasi *dependency array* dan injeksi filter `sekolah_id` pada fungsi *fetch* di hook `useEffect`.
 - **Alasan Teknis:** Ditemukan celah fatal terkait arsitektur *multi-tenancy*. Kueri Supabase di Bank Soal dan Daftar Ujian sebelumnya mengambil *semua* baris di tabel secara global (tanpa memfilter kepemilikan sekolah), sehingga berpotensi mengekspos kerahasiaan soal antar instansi pendidikan. Perbaikan ini mengimplementasikan filter ketat `.eq('sekolah_id', user.sekolah_id)` sekaligus membentengi *race-condition* pengunduhan data (prematur) melalui *guard clause* `if (!roleLoading)`.
 
+#### Poin 20: Penyempurnaan Tampilan UI & UX pada Modul Pelaksanaan Ujian (Exam Engine)
+- **File:** `src/app/e/[id]/page.tsx`, `src/app/e/[id]/mulai/page.tsx`
+- **Komponen/Fungsi:** Form persetujuan Ujian (*Agreement Checkbox*), Peta Navigasi Soal (*Grid Question Map*).
+- **Alasan Teknis:** Dua isu minor pada tata letak visual (*styling*) berpotensi mereduksi pengalaman siswa: pertama, centang persetujuan (*checkbox*) sering kali tak tampak berbaur di beberapa peramban akibat intervensi gaya bawaan; injeksi *tailwind-accent* mengkalibrasi ulang paksa render warnanya. Kedua, cincin tepian bundar pada angka navigasi peta soal (*ring-offset*) acapkali terpangkas karena bentrok dengan luapan gulir kontainer (*overflow-y*); penambahan bantalan (*padding*) dalam elemen pembungkus kini membebaskan pendaran cincin sepenuhnya dari efek kliping visual.
+
 ---
 
 ## [2026-07-15] - Architectural Decision Records (ADR) dari Sesi Penyelarasan `/grill-me`

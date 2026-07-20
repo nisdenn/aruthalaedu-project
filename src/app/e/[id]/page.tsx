@@ -226,7 +226,7 @@ export default function ExamLandingPage({ params }: { params: Promise<{ id: stri
                 type="checkbox"
                 checked={agreed}
                 onChange={(e) => setAgreed(e.target.checked)}
-                className="mt-0.5 w-5 h-5 rounded-md text-[#2f66e9] border-gray-300 focus:ring-[#2f66e9]"
+                className="mt-0.5 w-5 h-5 rounded-md border-gray-300 accent-[#2f66e9] focus:ring-[#2f66e9] cursor-pointer"
               />
               <span className="text-xs sm:text-sm text-gray-700 leading-relaxed font-medium">
                 Saya telah membaca, memahami, dan menyetujui seluruh tata tertib ujian daring ini serta berkomitmen mengerjakan secara jujur tanpa bantuan dari pihak mana pun.

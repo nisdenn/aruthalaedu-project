@@ -663,7 +663,7 @@ function ExamRoomClient({ params }: { params: Promise<{ id: string }> }) {
             </div>
 
             {/* Grid Question Map */}
-            <div className="grid grid-cols-5 gap-2 max-h-[380px] overflow-y-auto pr-1">
+            <div className="grid grid-cols-5 gap-2 max-h-[380px] overflow-y-auto p-1.5 pr-2">
               {examData.questions.map((sq: any, i: number) => {
                 const isAnswered = answers[sq.id] !== undefined && answers[sq.id] !== null && answers[sq.id] !== "";
                 const isFlagged = flaggedQuestions.has(sq.id);
