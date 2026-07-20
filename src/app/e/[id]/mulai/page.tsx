@@ -194,7 +194,12 @@ function ExamRoomClient({ params }: { params: Promise<{ id: string }> }) {
   const doSubmit = useCallback(async () => {
     if (timerRef.current) clearInterval(timerRef.current);
     acRef.current?.destroy();
-    await syncRef.current?.flushAll();
+    
+    try {
+      await syncRef.current?.flushAll();
+    } catch (err) {
+      console.warn("Gagal sinkronisasi data jawaban saat submit:", err);
+    }
     
     // Kalkulasi skor
     let correctCount = 0;
@@ -216,18 +221,33 @@ function ExamRoomClient({ params }: { params: Promise<{ id: string }> }) {
     const finalScore = examData?.total_questions ? Math.round((correctCount / examData.total_questions) * 100) : 0;
 
     if (sessionId) {
-      if (!navigator.onLine) {
+      try {
+        if (!navigator.onLine) {
+          const m = await import("@/lib/exam/offline-storage");
+          await m.markSessionPendingSync(sessionId, finalScore, timeLeft);
+          setSyncOk(false);
+        } else {
+          const supabase = createClient();
+          const { error: submitErr } = await supabase.from("exam_sessions").update({
+            status: "submitted",
+            submitted_at: new Date().toISOString(),
+            time_remaining: timeLeft,
+            score: finalScore
+          }).eq("id", sessionId);
+
+          if (submitErr) {
+            console.error("Gagal submit ke Supabase:", submitErr);
+            // JANGAN hilangkan data! Fallback ke offline storage
+            const m = await import("@/lib/exam/offline-storage");
+            await m.markSessionPendingSync(sessionId, finalScore, timeLeft);
+            setSyncOk(false);
+          }
+        }
+      } catch (fatalErr) {
+        console.error("Kesalahan jaringan/sistem fatal saat submit:", fatalErr);
         const m = await import("@/lib/exam/offline-storage");
         await m.markSessionPendingSync(sessionId, finalScore, timeLeft);
         setSyncOk(false);
-      } else {
-        const supabase = createClient();
-        await supabase.from("exam_sessions").update({
-          status: "submitted",
-          submitted_at: new Date().toISOString(),
-          time_remaining: timeLeft,
-          score: finalScore
-        }).eq("id", sessionId);
       }
     }
 

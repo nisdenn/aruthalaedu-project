@@ -31,6 +31,11 @@ Semua perubahan (Updates, Bug Fixes, New Features) pada Dasbor AruthalaEdu akan 
 - **Komponen/Fungsi:** Override mutlak `color-scheme` dan `appearance` pada elemen `<select>` secara global, serta penguatan kelas warna Tailwind.
 - **Alasan Teknis:** Memperbaiki insiden kilat hitam (*black flash*) pada dropdown `<select>` di *browser* Windows (Dark Mode). Solusi sebelumnya belum mencukupi karena OS masih merender *native frame* sebelum *hydration* selesai. Solusi terbaru memaksa instruksi `color-scheme: light only !important;` serta `-webkit-appearance: none;` untuk 100% mengambil alih kontrol perenderan dari OS, sehingga menjamin kedipan warna tidak akan pernah terjadi lagi di komponen modal mana pun.
 
+#### Poin 6: Pencegahan Fatal Data Loss pada CBT Engine
+- **File:** `src/app/e/[id]/mulai/page.tsx`
+- **Komponen/Fungsi:** Fungsi `doSubmit`
+- **Alasan Teknis:** Memperbaiki celah potensi hilangnya nilai ujian (Silent Failure) akibat *error* jaringan tak terduga (*Network Exceptions*) atau masalah validasi pembaruan Supabase. Menambahkan blok `try...catch` berlapis serta *error checking* (`{ error: submitErr }`). Segala jenis *error* yang mencegah pengumpulan akan otomatis diarahkan masuk ke fungsi `offline-storage` (`markSessionPendingSync`), memastikan tidak ada satupun pekerjaan siswa yang hilang.
+
 ---
 
 ## [2026-07-15] - Architectural Decision Records (ADR) dari Sesi Penyelarasan `/grill-me`
