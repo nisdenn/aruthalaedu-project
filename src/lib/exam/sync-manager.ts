@@ -1,6 +1,6 @@
 "use client";
 
-import { getAllAnswers, markAnswerSynced } from "./offline-storage";
+import { getAllAnswers, markAnswerSynced, getPendingSessionSync, clearPendingSessionSync } from "./offline-storage";
 
 const BATCH_INTERVAL_MS = 3 * 60 * 1000; // 3 menit sesuai spec
 
@@ -78,7 +78,34 @@ export class SyncManager {
         await Promise.all(unsynced.map((a) => markAnswerSynced(this.opts.sessionId, a.question_id)));
         this.opts.onSyncSuccess?.(unsynced.length);
       } else {
-        throw new Error(`Sync failed: ${res.status}`);
+        console.error(`[sync] Failed answers sync: ${res.status}`);
+      }
+
+      // Sync pending sessions
+      const pendingSessions = await getPendingSessionSync();
+      if (pendingSessions.length > 0) {
+        for (const session of pendingSessions) {
+          const sessionRes = await fetch(`${this.opts.supabaseUrl}/rest/v1/exam_sessions?id=eq.${session.session_id}`, {
+            method: "PATCH",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${bearerToken}`,
+              "apikey": this.opts.anonKey,
+            },
+            body: JSON.stringify({
+              status: session.status,
+              score: session.score,
+              time_remaining: session.time_remaining,
+              submitted_at: new Date(session.timestamp).toISOString(),
+            }),
+          });
+          if (sessionRes.ok) {
+            await clearPendingSessionSync(session.session_id);
+            console.log(`[sync] Successfully synced pending session ${session.session_id}`);
+          } else {
+            console.error(`[sync] Failed session sync: ${sessionRes.status}`);
+          }
+        }
       }
     } catch (e) {
       this.opts.onSyncError?.(e as Error);

@@ -21,6 +21,9 @@ import {
   MonitorPlay,
   Files,
   FileDown,
+  FileText,
+  Library,
+  CalendarCheck,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
@@ -49,6 +52,15 @@ const commonSections: NavSection[] = [
       { href: "/settings", label: "Pengaturan", icon: Settings },
     ],
   },
+  {
+    label: "Layanan Sekolah",
+    items: [
+      { href: "/materi", label: "File Materi", icon: FileText },
+      { href: "/perpus", label: "Perpustakaan", icon: Library },
+      { href: "/kesiswaan", label: "Kesiswaan", icon: Users },
+      { href: "/absen", label: "Data Absen", icon: CalendarCheck },
+    ]
+  }
 ];
 
 const studentSections: NavSection[] = [
@@ -139,7 +151,37 @@ const adminSections: NavSection[] = [
   },
 ];
 
-function getSections(roleGroup: "admin" | "teacher" | "student" | "unknown"): NavSection[] {
+function getSections(roleGroup: "admin" | "teacher" | "student" | "unknown", rawRole?: string): NavSection[] {
+  if (rawRole === "OWNER" || rawRole === "SUPER_ADMIN") {
+    const adminLaporan = adminSections.find(s => s.label === "Laporan");
+    const otherAdminSections = adminSections.filter(s => s.label !== "Laporan");
+    
+    return [
+      ...commonSections,
+      ...otherAdminSections,
+      {
+        label: "Fitur Guru",
+        items: [
+          { href: "/teacher-hub", label: "Hub Guru", icon: GraduationCap },
+          { href: "/ujian", label: "Manajemen Ujian", icon: ClipboardList },
+          { href: "/ujian/buat", label: "Buat Ujian", icon: SquareStack },
+          { href: "/bank-soal", label: "Bank Soal", icon: BookOpen },
+          { href: "/library-hub", label: "Library Hub", icon: BookOpen },
+          { href: "/incident-report", label: "Incident Report", icon: ShieldAlert },
+          { href: "/exam-health", label: "Exam Health", icon: LineChart },
+        ],
+      },
+      {
+        label: "Fitur Siswa",
+        items: [
+          { href: "/student-hub", label: "Hub Siswa", icon: Users },
+          { href: "/leaderboard", label: "Leaderboard", icon: BarChart2 },
+        ],
+      },
+      ...(adminLaporan ? [adminLaporan] : []),
+    ];
+  }
+  
   if (roleGroup === "admin") return [...commonSections, ...adminSections];
   if (roleGroup === "teacher") return [...commonSections, ...teacherSections];
   if (roleGroup === "student") return studentSections;
@@ -173,11 +215,19 @@ export default function Sidebar() {
     pathname === href || pathname.startsWith(href + "/");
 
   return (
-    <aside
-      className={`${
-        sidebarOpen ? "w-60" : "w-0"
-      } shrink-0 bg-white/75 backdrop-blur-xl border-r border-white/80 flex flex-col overflow-hidden transition-all duration-200 shadow-[10px_0_30px_rgba(57,111,190,0.06)]`}
-    >
+    <>
+      {/* Mobile Overlay */}
+      {sidebarOpen && (
+        <div 
+          className="fixed inset-0 z-40 bg-gray-900/40 backdrop-blur-sm lg:hidden animate-in fade-in"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+      <aside
+        className={`fixed lg:static inset-y-0 left-0 z-50 shrink-0 bg-white/95 lg:bg-white/75 backdrop-blur-xl border-r border-white/80 flex flex-col overflow-hidden transition-all duration-300 shadow-[10px_0_30px_rgba(57,111,190,0.06)] ${
+          sidebarOpen ? "translate-x-0 w-64 lg:w-60" : "-translate-x-full w-64 lg:translate-x-0 lg:w-0"
+        }`}
+      >
       <div className="p-4 border-b border-white/80 flex items-center gap-3 bg-white/40">
         <div className="w-8 h-8 bg-[#2f66e9] rounded-2xl flex items-center justify-center shrink-0 shadow-[0_10px_20px_rgba(47,102,233,0.24)]">
           <GraduationCap className="w-4 h-4 text-white" />
@@ -189,7 +239,7 @@ export default function Sidebar() {
       </div>
 
       <nav className="flex-1 overflow-y-auto py-3 px-2 space-y-4">
-        {getSections(identity.roleGroup).map((group) => (
+        {getSections(identity.roleGroup, identity.rawRole).map((group) => (
           <div key={group.label}>
             <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest px-3 mb-1">
               {group.label}
@@ -201,6 +251,9 @@ export default function Sidebar() {
                 <Link
                   key={item.href}
                   href={item.href}
+                  onClick={() => {
+                    if (window.innerWidth < 1024) setSidebarOpen(false);
+                  }}
                   className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm font-medium transition-all group ${
                     active
                       ? "bg-[#eef5ff] text-[#2f66e9] shadow-[0_8px_20px_rgba(47,102,233,0.08)]"
@@ -240,6 +293,7 @@ export default function Sidebar() {
           </button>
         </div>
       </div>
-    </aside>
+      </aside>
+    </>
   );
 }

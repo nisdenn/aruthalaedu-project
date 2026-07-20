@@ -58,20 +58,21 @@ function ExamRoomClient({ params }: { params: Promise<{ id: string }> }) {
 
   async function fetchExamData(examId: string) {
     if (!sessionId) return;
-    const supabase = createClient();
+    try {
+      const supabase = createClient();
     
     // Fetch exam details
-    const { data: exam } = await supabase.from("exams").select("*").eq("id", examId).single();
-    if (!exam) return;
+    const { data: exam, error: examError } = await supabase.from("exams").select("*").eq("id", examId).single();
+    if (examError || !exam) throw new Error("Fetch failed");
 
     // Fetch exam_questions
-    const { data: eq } = await supabase.from("exam_questions").select("question_id, urutan").eq("exam_id", examId).order("urutan", { ascending: true });
-    if (!eq || eq.length === 0) return;
+    const { data: eq, error: eqError } = await supabase.from("exam_questions").select("question_id, urutan").eq("exam_id", examId).order("urutan", { ascending: true });
+    if (eqError || !eq || eq.length === 0) throw new Error("Fetch failed");
     const qIds = eq.map(x => x.question_id);
     
     // Fetch questions
-    const { data: qs } = await supabase.from("questions").select("*").in("id", qIds);
-    if (!qs) return;
+    const { data: qs, error: qsError } = await supabase.from("questions").select("*").in("id", qIds);
+    if (qsError || !qs) throw new Error("Fetch failed");
 
     // Sort questions by exam_questions.urutan
     const sortedQs = [];
@@ -80,19 +81,33 @@ function ExamRoomClient({ params }: { params: Promise<{ id: string }> }) {
       if (q) sortedQs.push(q);
     }
 
-    const data = {
-      session_id: sessionId,
-      exam_title: exam.title,
-      mata_pelajaran: exam.mata_pelajaran || "Umum",
-      total_questions: sortedQs.length,
-      duration_seconds: exam.duration_minutes * 60,
-      anti_cheat_config: exam.anti_cheat_config || { fullscreen: false, tab_blur: false },
-      questions: sortedQs
-    };
+      const data = {
+        session_id: sessionId,
+        exam_title: exam.title,
+        mata_pelajaran: exam.mata_pelajaran || "Umum",
+        total_questions: sortedQs.length,
+        duration_seconds: exam.duration_minutes * 60,
+        anti_cheat_config: exam.anti_cheat_config || { fullscreen: false, tab_blur: false },
+        questions: sortedQs
+      };
 
-    setExamData(data);
-    setTimeLeft(data.duration_seconds);
-    initExam(data);
+      await import("@/lib/exam/offline-storage").then(m => m.saveExamDataLocal(sessionId, data));
+
+      setExamData(data);
+      setTimeLeft(data.duration_seconds);
+      initExam(data);
+    } catch (e) {
+      // Offline fallback
+      const m = await import("@/lib/exam/offline-storage");
+      const localData = await m.loadExamDataLocal(sessionId);
+      if (localData) {
+        setExamData(localData);
+        setTimeLeft(localData.duration_seconds);
+        initExam(localData);
+      } else {
+        alert("Koneksi terputus dan soal belum diunduh. Silakan refresh saat online.");
+      }
+    }
   }
 
   function initExam(data: any) {
@@ -191,13 +206,19 @@ function ExamRoomClient({ params }: { params: Promise<{ id: string }> }) {
     const finalScore = examData?.total_questions ? Math.round((correctCount / examData.total_questions) * 100) : 0;
 
     if (sessionId) {
-      const supabase = createClient();
-      await supabase.from("exam_sessions").update({
-        status: "submitted",
-        submitted_at: new Date().toISOString(),
-        time_remaining: timeLeft,
-        score: finalScore
-      }).eq("id", sessionId);
+      if (!navigator.onLine) {
+        const m = await import("@/lib/exam/offline-storage");
+        await m.markSessionPendingSync(sessionId, finalScore, timeLeft);
+        setSyncOk(false);
+      } else {
+        const supabase = createClient();
+        await supabase.from("exam_sessions").update({
+          status: "submitted",
+          submitted_at: new Date().toISOString(),
+          time_remaining: timeLeft,
+          score: finalScore
+        }).eq("id", sessionId);
+      }
     }
 
     if (document.fullscreenElement) { try { await document.exitFullscreen(); } catch {} }
@@ -235,6 +256,7 @@ function ExamRoomClient({ params }: { params: Promise<{ id: string }> }) {
       <div className="min-h-screen bg-[#f8fbff] flex flex-col items-center justify-center space-y-3">
         <div className="w-10 h-10 rounded-full border-3 border-[#2f66e9] border-t-transparent animate-spin" />
         <p className="text-sm font-semibold text-gray-600">Memuat Butir Soal & Konfigurasi Ujian...</p>
+        <p className="text-xs text-gray-400">Jika terjebak di halaman ini saat offline, pastikan Anda telah menekan Mulai saat online.</p>
       </div>
     );
   }
@@ -281,7 +303,7 @@ function ExamRoomClient({ params }: { params: Promise<{ id: string }> }) {
             <div>
               <span className="block text-[11px] font-semibold text-gray-400 uppercase tracking-wide">Sinkronisasi</span>
               <span className={`mt-1 text-sm font-bold flex items-center gap-1 ${syncOk ? "text-green-600" : "text-amber-600"}`}>
-                {syncOk ? "Tersimpan" : "Cek Koneksi"}
+                {syncOk ? "Tersimpan" : "Tersimpan Lokal (Menunggu Sinyal)"}
               </span>
             </div>
           </div>

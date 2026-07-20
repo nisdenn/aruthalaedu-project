@@ -10,6 +10,7 @@ export interface DashboardIdentity {
   loading: boolean;
   roleGroup: DashboardRoleGroup;
   roleLabel: string;
+  rawRole: string;
   fullName: string;
   email: string;
   nisn?: string;
@@ -61,6 +62,7 @@ export function useDashboardIdentity() {
     loading: true,
     roleGroup: "unknown",
     roleLabel: "Memuat...",
+    rawRole: "UNKNOWN",
     fullName: "Memuat pengguna",
     email: "",
     sekolahName: "SMA Negeri 1 Aruthala",
@@ -81,6 +83,7 @@ export function useDashboardIdentity() {
               loading: false,
               roleGroup: "student",
               roleLabel: "Siswa",
+              rawRole: parsed?.role || "SISWA",
               fullName: parsed.full_name || "Siswa",
               email: `${parsed.nisn || "siswa"}@sekolah.id`,
               nisn: parsed.nisn,
@@ -131,6 +134,7 @@ export function useDashboardIdentity() {
               loading: false,
               roleGroup,
               roleLabel,
+              rawRole: role,
               fullName,
               email: user.email ?? "",
               nisn: profile?.nisn,
@@ -144,6 +148,7 @@ export function useDashboardIdentity() {
               loading: false,
               roleGroup: "unknown",
               roleLabel: "Pengguna",
+              rawRole: "UNKNOWN",
               fullName: "Pengguna",
               email: "",
               sekolahName: "SMA Negeri 1 Aruthala",
@@ -156,6 +161,7 @@ export function useDashboardIdentity() {
             loading: false,
             roleGroup: "unknown",
             roleLabel: "Pengguna",
+            rawRole: "UNKNOWN",
             fullName: "Pengguna",
             email: "",
             sekolahName: "SMA Negeri 1 Aruthala",

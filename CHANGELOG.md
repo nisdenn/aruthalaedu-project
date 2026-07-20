@@ -185,12 +185,21 @@ Semua perubahan (Updates, Bug Fixes, New Features) pada Dasbor AruthalaEdu akan 
 - **Pemetaan Kolom Live Monitor:** Memperbaiki kesalahan pemetaan kolom pada `MonitorClient.tsx` di mana kolom "Pelanggaran" sebelumnya salah menampilkan data "Sisa Waktu Ujian".
 - **Real-Time Progress & Live Timer:** Menambahkan *listener* `Supabase Realtime` untuk tabel `exam_answers` di layar Live Monitor Guru. Angka progres siswa (contoh: 2/15) kini akan bertambah secara otomatis tanpa memuat ulang layar. *Live timer* juga dikalibrasi agar menghitung selisih waktu dari jadwal `start_at` ujian.
 - **Keamanan Hak Akses:** Menutup celah akses menu (seperti `/akademik`, `/data-siswa`, `/data-siswa/import`) yang sebelumnya masih bisa diintip oleh siswa melalui URL *direct routing*. Sistem kini mendeteksi status `isSiswa` dan segera melempar mereka ke `/overview`.
- 
- # #   [ 2 0 2 6 - 0 7 - 1 5 ]   -   F a s e   6 :   G i t   M e r g e   &   I n t e g r a s i   U I  
- # # #   D i t a m b a h k a n   ( A d d e d )  
- -   * * P e m b a u r a n   G U I   B a r u : * *   M e n g g a b u n g k a n   p e m b a r u a n   d e s a i n   d a n   t a t a   l e t a k   b e s a r - b e s a r a n   y a n g   d i k e r j a k a n   o l e h   D e n i s   d a r i   r e p o s i t o r i   \ m a i n \ .   I n i   t e r m a s u k   p e r o m b a k a n   g a y a   k o m p o n e n   d i   \ S i d e b a r . t s x \ ,   \ H e a d e r . t s x \ ,   s e r t a   \ M o n i t o r C l i e n t . t s x \ .  
- # # #   D i p e r b a i k i   ( F i x e d )  
- -   * * M e r g e   C o n f l i c t s   R e s o l u t i o n : * *   M e n y e l e s a i k a n   p u l u h a n   k o n f l i k   G i t   ( * m e r g e   c o n f l i c t s * )   p a d a   b a n y a k   k o m p o n e n   u t a m a   y a n g   d i s e b a b k a n   o l e h   p e m b a r u a n   s i m u l t a n ,   m e n g u t a m a k a n   f o n d a s i   k o d e   b i s n i s   ( S u p a b a s e   r e a l - t i m e ,   v a l i d a s i   A u t h ,   d a n   p r o t e k s i   r u t e )   t a n p a   m e n g h i l a n g k a n   p e m b a r u a n   g r a f i s   d a r i   D e n i s .  
- -   * * P e m u l i h a n   N a v i g a s i   A m a n : * *   M e n g e m b a l i k a n   s i s t e m   p e r l i n d u n g a n   ( * b y p a s s   c l e a n u p * )   p a d a   s e s i   l o g o u t   d i   k o m p o n e n   \ S i d e b a r . t s x \ .  
-  
- 
+ 
+ # #   [ 2 0 2 6 - 0 7 - 1 5 ]   -   F a s e   6 :   G i t   M e r g e   &   I n t e g r a s i   U I  
+ # # #   D i t a m b a h k a n   ( A d d e d )  
+ -   * * P e m b a u r a n   G U I   B a r u : * *   M e n g g a b u n g k a n   p e m b a r u a n   d e s a i n   d a n   t a t a   l e t a k   b e s a r - b e s a r a n   y a n g   d i k e r j a k a n   o l e h   D e n i s   d a r i   r e p o s i t o r i   \ m a i n \ .   I n i   t e r m a s u k   p e r o m b a k a n   g a y a   k o m p o n e n   d i   \ S i d e b a r . t s x \ ,   \ H e a d e r . t s x \ ,   s e r t a   \ M o n i t o r C l i e n t . t s x \ .  
+ # # #   D i p e r b a i k i   ( F i x e d )  
+ -   * * M e r g e   C o n f l i c t s   R e s o l u t i o n : * *   M e n y e l e s a i k a n   p u l u h a n   k o n f l i k   G i t   ( * m e r g e   c o n f l i c t s * )   p a d a   b a n y a k   k o m p o n e n   u t a m a   y a n g   d i s e b a b k a n   o l e h   p e m b a r u a n   s i m u l t a n ,   m e n g u t a m a k a n   f o n d a s i   k o d e   b i s n i s   ( S u p a b a s e   r e a l - t i m e ,   v a l i d a s i   A u t h ,   d a n   p r o t e k s i   r u t e )   t a n p a   m e n g h i l a n g k a n   p e m b a r u a n   g r a f i s   d a r i   D e n i s .  
+  -   * * P e m u l i h a n   N a v i g a s i   A m a n : * *   M e n g e m b a l i k a n   s i s t e m   p e r l i n d u n g a n   ( * b y p a s s   c l e a n u p * )   p a d a   s e s i   l o g o u t   d i   k o m p o n e n   \ S i d e b a r . t s x \ .  
+  
+---
+
+## [2026-07-20] - Penyesuaian UI Dasbor Siswa, Perbaikan Bug Modal Jadwal, dan Penambahan Menu Baru
+### Ditambahkan (Added)
+- **Menu Layanan Sekolah (`Sidebar.tsx`):** Menambahkan submenu baru pada sidebar khusus siswa, yang mencakup: *File Materi*, *Perpustakaan*, *Kesiswaan*, dan *Data Absen*.
+- **Halaman Baru (`materi`, `perpus`, `kesiswaan`, `absen`):** Membangun UI halaman *placeholder* sederhana dengan mengadaptasi tema desain modern Aruthala. Halaman `/absen` telah dilengkapi dengan struktur tabel absensi bulanan lengkap dengan filter dropdown, kolom status dinamis (Hadir/Sakit/Libur), dan baris warna selang-seling (Zebra-striping).
+
+### Diperbaiki & Diubah (Fixed & Changed)
+- **Pembaruan Teks KPI (`student-hub/page.tsx`):** Mengubah *wording* label dari "Sedang Dikerjakan" menjadi "Ujian hari ini" pada kartu metrik (KPI Stats Grid) dan navigasi *Tabs* filter agar lebih relevan dengan jadwal harian siswa.
+- **Resolusi Bug Input Waktu (`schedule/ScheduleModal.tsx`):** Memperbaiki isu lag dan bug ketidakmunculan angka pada browser tertentu (*cross-browser issue*) ketika menggunakan *native HTML input* `type="time"`. Elemen input waktu kini sepenuhnya dirombak menjadi dua elemen `select` kustom (Jam: 00-23, Menit: 00, 15, 30, 45) yang responsif dan sangat ringan.

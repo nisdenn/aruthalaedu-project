@@ -76,7 +76,7 @@ export default function StudentHubPage() {
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         {[
           { label: "Ujian Selesai", value: loadingSessions ? "..." : submittedSessions.length.toString(), detail: "Telah disubmit & dikoreksi" },
-          { label: "Sedang Dikerjakan", value: loadingSessions ? "..." : inProgressSessions.length.toString(), detail: "Sesi ujian aktif" },
+          { label: "Ujian hari ini", value: loadingSessions ? "..." : inProgressSessions.length.toString(), detail: "Sesi ujian aktif" },
           { label: "Rata-rata Nilai", value: loadingSessions ? "..." : avgScore, detail: "Dari seluruh ujian selesai" },
           { label: "Pelanggaran Tercatat", value: loadingSessions ? "..." : totalViolations.toString(), detail: "Peringatan anti-cheat" },
         ].map((item) => (
@@ -123,7 +123,7 @@ export default function StudentHubPage() {
           <div className="flex flex-wrap items-center gap-1.5 p-1 bg-gray-50 rounded-xl border border-gray-200/80">
             {[
               { id: "all", label: "Semua Sesi", count: sessions.length },
-              { id: "in_progress", label: "Sedang Dikerjakan", count: inProgressSessions.length },
+              { id: "in_progress", label: "Ujian hari ini", count: inProgressSessions.length },
               { id: "submitted", label: "Selesai", count: submittedSessions.length },
             ].map((tab) => (
               <button
@@ -189,7 +189,7 @@ export default function StudentHubPage() {
                           isFinished ? "bg-green-50 text-green-600 border border-green-200" : "bg-amber-50 text-amber-600 border border-amber-200"
                         }`}>
                           {isFinished ? <CheckCircle2 className="w-3 h-3" /> : <Clock className="w-3 h-3" />}
-                          {isFinished ? "Selesai" : "Sedang Dikerjakan"}
+                          {isFinished ? "Selesai" : "Ujian hari ini"}
                         </span>
                       </td>
                       <td className="px-5 py-4 text-center">
