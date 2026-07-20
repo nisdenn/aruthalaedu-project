@@ -315,24 +315,24 @@ function ExamRoomClient({ params }: { params: Promise<{ id: string }> }) {
             </p>
           </div>
 
-          <div className="rounded-2xl border border-[#e3ebfa] bg-[#f8fbff] p-5 grid grid-cols-2 gap-4 text-left">
+          <div className="rounded-2xl border border-[#e3ebfa] bg-[#f8fbff] p-4 sm:p-5 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-left">
             <div>
               <span className="block text-[11px] font-semibold text-gray-400 uppercase tracking-wide">Butir Dijawab</span>
-              <span className="mt-1 text-lg font-extrabold text-gray-900">{answeredCount} / {examData.total_questions}</span>
+              <span className="mt-1 text-base sm:text-lg font-extrabold text-gray-900">{answeredCount} / {examData.total_questions}</span>
             </div>
             <div>
               <span className="block text-[11px] font-semibold text-gray-400 uppercase tracking-wide">Pengawasan</span>
-              <span className={`mt-1 text-lg font-extrabold ${totalViolations > 0 ? "text-amber-600" : "text-green-600"}`}>
+              <span className={`mt-1 text-base sm:text-lg font-extrabold ${totalViolations > 0 ? "text-amber-600" : "text-green-600"}`}>
                 {totalViolations > 0 ? `${totalViolations} Peringatan` : "100% Bersih"}
               </span>
             </div>
             <div>
               <span className="block text-[11px] font-semibold text-gray-400 uppercase tracking-wide">Waktu Digunakan</span>
-              <span className="mt-1 text-lg font-bold text-gray-800">{formatSeconds(examData.duration_seconds - timeLeft)}</span>
+              <span className="mt-1 text-base sm:text-lg font-bold text-gray-800">{formatSeconds(examData.duration_seconds - timeLeft)}</span>
             </div>
             <div>
               <span className="block text-[11px] font-semibold text-gray-400 uppercase tracking-wide">Sinkronisasi</span>
-              <span className={`mt-1 text-sm font-bold flex items-center gap-1 ${syncOk ? "text-green-600" : "text-amber-600"}`}>
+              <span className={`mt-1 text-xs sm:text-sm font-bold flex items-center gap-1 ${syncOk ? "text-green-600" : "text-amber-600"}`}>
                 {syncOk ? "Tersimpan" : "Tersimpan Lokal (Menunggu Sinyal)"}
               </span>
             </div>
@@ -447,9 +447,9 @@ function ExamRoomClient({ params }: { params: Promise<{ id: string }> }) {
             <ShieldCheck className="h-5 w-5" />
           </div>
           <div className="min-w-0">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 min-w-0">
               <h1 className="text-sm font-bold text-gray-900 truncate">{examData.exam_title}</h1>
-              <span className="hidden sm:inline-flex items-center rounded-lg bg-[#eef5ff] px-2.5 py-0.5 text-[11px] font-bold text-[#2f66e9]">
+              <span className="hidden sm:inline-flex shrink-0 items-center rounded-lg bg-[#eef5ff] px-2.5 py-0.5 text-[11px] font-bold text-[#2f66e9]">
                 {examData.mata_pelajaran}
               </span>
             </div>
@@ -479,9 +479,9 @@ function ExamRoomClient({ params }: { params: Promise<{ id: string }> }) {
           <button
             type="button"
             onClick={() => setShowConfirmModal(true)}
-            className="btn-primary bg-green-600 hover:bg-green-700 text-white font-bold px-4 py-2 rounded-xl text-xs sm:text-sm flex items-center gap-1.5 shadow-sm"
+            className="btn-primary bg-green-600 hover:bg-green-700 text-white font-bold px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm flex items-center gap-1 sm:gap-1.5 shadow-sm shrink-0"
           >
-            <span>Selesai</span>
+            <span className="hidden sm:inline">Selesai</span>
             <CheckCircle2 className="w-4 h-4" />
           </button>
         </div>
@@ -522,7 +522,7 @@ function ExamRoomClient({ params }: { params: Promise<{ id: string }> }) {
 
             {/* Question Text HTML */}
             <div
-              className="text-base sm:text-lg font-medium text-gray-900 leading-relaxed py-2 select-text"
+              className="text-base sm:text-lg font-medium text-gray-900 leading-relaxed py-2 select-text break-words overflow-x-auto overflow-y-hidden"
               dangerouslySetInnerHTML={{ __html: q.content.text }}
             />
 
@@ -549,7 +549,7 @@ function ExamRoomClient({ params }: { params: Promise<{ id: string }> }) {
                       }`}>
                         {letter}
                       </span>
-                      <span className="text-sm sm:text-base font-medium flex-1 leading-relaxed">
+                      <span className="text-sm sm:text-base font-medium flex-1 leading-relaxed break-words">
                         {opt.text}
                       </span>
                       {isSelected && (
@@ -605,40 +605,43 @@ function ExamRoomClient({ params }: { params: Promise<{ id: string }> }) {
           </div>
 
           {/* Bottom Navigation Buttons */}
-          <div className="card card-padding bg-white border border-[#e3ebfa] shadow-sm rounded-2xl p-4 sm:p-5 flex items-center justify-between gap-4">
+          <div className="card card-padding bg-white border border-[#e3ebfa] shadow-sm rounded-2xl p-3 sm:p-5 flex items-center justify-between gap-2 sm:gap-4">
             <button
               type="button"
               disabled={idx === 0}
               onClick={() => setIdx((i) => Math.max(0, i - 1))}
-              className={`btn-secondary px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold inline-flex items-center gap-2 ${
+              className={`btn-secondary px-3 sm:px-5 py-2 sm:py-2.5 rounded-xl text-[11px] sm:text-sm font-bold inline-flex items-center gap-1 sm:gap-2 transition-colors ${
                 idx === 0 ? "opacity-50 cursor-not-allowed bg-gray-100 text-gray-400 border-gray-200" : "bg-[#eef5ff] text-[#2f66e9] hover:bg-[#d8e8ff]"
               }`}
             >
-              <ArrowLeft className="w-4 h-4" />
-              <span>Sebelumnya</span>
+              <ArrowLeft className="w-4 h-4 shrink-0" />
+              <span className="hidden sm:inline">Sebelumnya</span>
+              <span className="sm:hidden">Prev</span>
             </button>
 
-            <span className="text-xs font-semibold text-gray-500 hidden sm:inline-block">
-              Nomor <strong className="text-gray-900">{idx + 1}</strong> / {examData.total_questions}
+            <span className="text-[11px] sm:text-xs font-semibold text-gray-500 whitespace-nowrap">
+              <span className="hidden sm:inline">Nomor </span><strong className="text-gray-900">{idx + 1}</strong> / {examData.total_questions}
             </span>
 
             {idx < examData.total_questions - 1 ? (
               <button
                 type="button"
                 onClick={() => setIdx((i) => i + 1)}
-                className="btn-primary px-6 py-2.5 rounded-xl text-xs sm:text-sm font-bold inline-flex items-center gap-2 shadow-sm"
+                className="btn-primary px-4 sm:px-6 py-2 sm:py-2.5 rounded-xl text-[11px] sm:text-sm font-bold inline-flex items-center gap-1 sm:gap-2 shadow-sm transition-colors"
               >
-                <span>Selanjutnya</span>
-                <ArrowRight className="w-4 h-4" />
+                <span className="hidden sm:inline">Selanjutnya</span>
+                <span className="sm:hidden">Next</span>
+                <ArrowRight className="w-4 h-4 shrink-0" />
               </button>
             ) : (
               <button
                 type="button"
                 onClick={() => setShowConfirmModal(true)}
-                className="btn-primary bg-green-600 hover:bg-green-700 text-white px-6 py-2.5 rounded-xl text-xs sm:text-sm font-bold inline-flex items-center gap-2 shadow-sm"
+                className="btn-primary bg-green-600 hover:bg-green-700 text-white px-4 sm:px-6 py-2 sm:py-2.5 rounded-xl text-[11px] sm:text-sm font-bold inline-flex items-center gap-1 sm:gap-2 shadow-sm transition-colors"
               >
-                <span>Periksa & Kumpulkan</span>
-                <CheckCircle2 className="w-4 h-4" />
+                <span className="hidden sm:inline">Kumpulkan</span>
+                <span className="sm:hidden">Submit</span>
+                <CheckCircle2 className="w-4 h-4 shrink-0" />
               </button>
             )}
           </div>

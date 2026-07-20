@@ -36,6 +36,11 @@ Semua perubahan (Updates, Bug Fixes, New Features) pada Dasbor AruthalaEdu akan 
 - **Komponen/Fungsi:** Fungsi `doSubmit`
 - **Alasan Teknis:** Memperbaiki celah potensi hilangnya nilai ujian (Silent Failure) akibat *error* jaringan tak terduga (*Network Exceptions*) atau masalah validasi pembaruan Supabase. Menambahkan blok `try...catch` berlapis serta *error checking* (`{ error: submitErr }`). Segala jenis *error* yang mencegah pengumpulan akan otomatis diarahkan masuk ke fungsi `offline-storage` (`markSessionPendingSync`), memastikan tidak ada satupun pekerjaan siswa yang hilang.
 
+#### Poin 7: Penyesuaian Reponsivitas (*Mobile-First*) Ruang Ujian CBT
+- **File:** `src/app/e/[id]/mulai/page.tsx`
+- **Komponen/Fungsi:** Tata Letak (*Layout*), Header, Area Soal, dan Tombol Navigasi.
+- **Alasan Teknis:** Memperkuat keamanan visual (*Responsive Design*) untuk mencegah elemen tumpang tindih (*overlap*) atau melebih batas (*overflow*) saat dibuka melalui gawai kecil. Mengimplementasikan `break-words`, `overflow-x-auto` pada teks soal, memendekkan label tombol di layar kecil ("Sebelumnya" menjadi "Prev", dll.), dan menerapkan konfigurasi penumpukan baris tabel (*stack grid*) pada ringkasan hasil penyelesaian. Ruang Ujian kini 100% aman dimainkan lintas-platform.
+
 ---
 
 ## [2026-07-15] - Architectural Decision Records (ADR) dari Sesi Penyelarasan `/grill-me`
