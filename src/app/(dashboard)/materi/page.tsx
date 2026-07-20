@@ -83,8 +83,7 @@ export default function MateriPage() {
       );
     }
     setLoading(false);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [identity.sekolahId, supabase]);
 
   useEffect(() => {
     if (!identity.loading) fetchMaterials();

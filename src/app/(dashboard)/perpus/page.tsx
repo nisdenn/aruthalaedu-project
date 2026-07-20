@@ -57,8 +57,7 @@ export default function PerpusPage() {
       setBooks((data as Book[]) || []);
     }
     setLoading(false);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [identity.sekolahId, supabase]);
 
   useEffect(() => {
     if (!identity.loading) fetchBooks();

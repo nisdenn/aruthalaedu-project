@@ -82,6 +82,11 @@ Semua perubahan (Updates, Bug Fixes, New Features) pada Dasbor AruthalaEdu akan 
 - **Komponen/Fungsi:** Fungsi Ekstraksi *dbYayasanId*.
 - **Alasan Teknis:** Memperbaiki malfungsi fatal "*yayasan_id null*" ketika profil dan *app_metadata* gagal menyediakan klaim yayasan_id. Sistem kini dengan proaktif menarik *yayasan_id* menggunakan *query* `.select("name, yayasan_id")` dari tabel relasional `sekolah`, memastikan identitas *tenant* guru terangkut sebelum eksekusi penyimpanan ke basis data.
 
+#### Poin 12: Pemusnahan "Stale Closure" pada Hook Pengambilan Data (Layanan Sekolah)
+- **File:** `materi/page.tsx`, `perpus/page.tsx`, `kesiswaan/page.tsx`
+- **Komponen/Fungsi:** `useCallback` (*dependency array* pada fungsi `fetch`).
+- **Alasan Teknis:** Menambal masalah di mana modul Dasbor merender layar kosong selamanya setelah identitas sekolah difiltrasi. Ini terjadi karena nilai `sekolahId` sebelumnya terperangkap (Stale Closure) akibat larik dependensi (`dependency array`) yang kosong `[]` secara paksa (mengabaikan *linter*). Penambahan `[identity.sekolahId, supabase]` memulihkan reaktivitas fungsi, memaksanya menyegarkan referensi memori setiap kali identitas *tenant* berhasil dimuat.
+
 ---
 
 ## [2026-07-15] - Architectural Decision Records (ADR) dari Sesi Penyelarasan `/grill-me`
