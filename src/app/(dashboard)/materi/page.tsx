@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useMemo, useCallback } from "react";
-import { FileText, Search, Upload, X, Loader2, Download, File } from "lucide-react";
+import { FileText, Search, Upload, X, Loader2, Download, File, Trash2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { useDashboardIdentity } from "@/components/layout/useDashboardIdentity";
 
@@ -104,6 +104,28 @@ export default function MateriPage() {
     }
     return result;
   }, [materials, search, filterMapel]);
+
+  const handleDelete = async (id: string, fileUrl: string) => {
+    if (!confirm("Apakah Anda yakin ingin menghapus materi beserta filenya?")) return;
+    
+    setLoading(true);
+    try {
+      // Ekstrak path dari URL publik untuk menghapus file fisik di Storage
+      const path = fileUrl.split("aruthala-materials/")[1];
+      if (path) {
+        await supabase.storage.from("aruthala-materials").remove([path]);
+      }
+      
+      // Hapus data dari Database
+      const { error } = await supabase.from("materials").delete().eq("id", id);
+      if (error) throw error;
+      
+      fetchMaterials();
+    } catch (e: any) {
+      alert("Gagal menghapus materi: " + e.message);
+      setLoading(false);
+    }
+  };
 
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -218,11 +240,18 @@ export default function MateriPage() {
               {m.description && <p className="text-xs text-gray-500 mb-3 line-clamp-2">{m.description}</p>}
               <div className="flex items-center justify-between pt-3 border-t border-gray-100">
                 <span className="text-[10px] text-gray-400">{new Date(m.created_at).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" })}</span>
-                <a href={m.file_url !== "#" ? m.file_url : undefined}
-                  className={`flex items-center gap-1 text-xs font-semibold ${m.file_url !== "#" ? "text-[#2f66e9] hover:underline" : "text-gray-400 cursor-not-allowed"}`}
-                  target="_blank" rel="noopener noreferrer">
-                  <Download className="w-3.5 h-3.5" /> Unduh File
-                </a>
+                <div className="flex items-center gap-3">
+                  {isStaff && (
+                    <button onClick={() => handleDelete(m.id, m.file_url)} className="text-gray-400 hover:text-red-500 transition-colors" title="Hapus Materi">
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                  <a href={m.file_url !== "#" ? m.file_url : undefined}
+                    className={`flex items-center gap-1 text-xs font-semibold ${m.file_url !== "#" ? "text-[#2f66e9] hover:underline" : "text-gray-400 cursor-not-allowed"}`}
+                    target="_blank" rel="noopener noreferrer">
+                    <Download className="w-3.5 h-3.5" /> Unduh File
+                  </a>
+                </div>
               </div>
             </div>
           ))}

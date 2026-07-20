@@ -87,6 +87,11 @@ Semua perubahan (Updates, Bug Fixes, New Features) pada Dasbor AruthalaEdu akan 
 - **Komponen/Fungsi:** `useCallback` (*dependency array* pada fungsi `fetch`).
 - **Alasan Teknis:** Menambal masalah di mana modul Dasbor merender layar kosong selamanya setelah identitas sekolah difiltrasi. Ini terjadi karena nilai `sekolahId` sebelumnya terperangkap (Stale Closure) akibat larik dependensi (`dependency array`) yang kosong `[]` secara paksa (mengabaikan *linter*). Penambahan `[identity.sekolahId, supabase]` memulihkan reaktivitas fungsi, memaksanya menyegarkan referensi memori setiap kali identitas *tenant* berhasil dimuat.
 
+#### Poin 13: Injeksi Fungsionalitas Hapus Materi Secara Utuh (Database & Storage)
+- **File:** `src/app/(dashboard)/materi/page.tsx`
+- **Komponen/Fungsi:** Fungsi `handleDelete` dan Ikon Aksi Antarmuka.
+- **Alasan Teknis:** Menyuntikkan fungsionalitas CRUD secara utuh bagi pengguna bertipe *Staff* (Admin/Guru). Fungsi ini melakukan operasi sapu bersih ganda: membongkar dan menghapus pangkalan berkas (*file object*) fisik dari Supabase Storage `aruthala-materials` berdasarkan pemotongan URL, dilanjutkan dengan penghapusan baris data pada tabel PostgreSQL `materials`. Ikon tempat sampah diintegrasikan pada kartu, di samping tombol unduh publik.
+
 ---
 
 ## [2026-07-15] - Architectural Decision Records (ADR) dari Sesi Penyelarasan `/grill-me`
