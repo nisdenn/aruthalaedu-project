@@ -198,7 +198,7 @@ function getInitials(name: string) {
 export default function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
-  const { sidebarOpen } = useSidebar();
+  const { sidebarOpen, setSidebarOpen } = useSidebar();
   const identity = useDashboardIdentity();
 
   const handleLogout = async () => {
