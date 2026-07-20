@@ -3,6 +3,27 @@ Semua perubahan (Updates, Bug Fixes, New Features) pada Dasbor AruthalaEdu akan 
 
 ---
 
+## [2026-07-20] - Bug Fixes: UI Ujian CBT & Keamanan Hasil Ujian
+### Diperbarui (Updated)
+
+#### Poin 1: Ikon Ceklis di Halaman Mulai Ujian CBT
+- **File:** `src/app/e/[id]/page.tsx` & `src/app/e/[id]/mulai/page.tsx`
+- **Alasan Teknis:** Mengganti titik (`span w-2 h-2 rounded-full`) menjadi ikon `CheckCircle2` dari `lucide-react` pada status perlindungan ujian agar memberikan indikasi visual (ceklis) yang jelas kepada pengguna.
+
+#### Poin 2: Penyembunyian Ujian Selesai dari Daftar Ujian Tersedia
+- **File:** `src/app/(dashboard)/overview/page.tsx`
+- **Alasan Teknis:** Menambahkan filter validasi `!historyIds.has(e.id)` pada daftar ujian yang tersedia. Hal ini mencegah ujian yang sudah disubmit masuk kembali ke daftar sehingga tombol "Mulai Kerjakan" tidak lagi muncul untuk ujian yang sudah diselesaikan.
+
+#### Poin 3: Proteksi Akses Halaman Hasil Ujian untuk Siswa
+- **File:** `src/app/(dashboard)/ujian/[id]/hasil/HasilClient.tsx`
+- **Alasan Teknis:** Halaman hasil (`/hasil`) sebelumnya dapat diakses siswa. Kini, validasi `isSiswa` ditambahkan untuk langsung memblokir akses dan memunculkan *alert* peringatan "Akses Ditolak".
+
+#### Poin 4: Perbaikan RLS & Filter Sekolah untuk Bypass Siswa Lokal
+- **File:** `materi/page.tsx`, `perpus/page.tsx`, `kesiswaan/page.tsx`, & Migrasi RLS
+- **Alasan Teknis:** Mengatasi bug siswa tidak bisa melihat data karena login via Local Bypass (tidak ada `auth.jwt`). Query di frontend ditambahkan eksplisit filter `.eq("sekolah_id")` dan policy RLS diubah menjadi `Allow public read` untuk memastikan fungsionalitas jalan.
+
+---
+
 ## [2026-07-20] - Integrasi Backend Layanan Sekolah & Sidebar Siswa
 ### Ditambahkan & Diperbarui (Added & Updated)
 

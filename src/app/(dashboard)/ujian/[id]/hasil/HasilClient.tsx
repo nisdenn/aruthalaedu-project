@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { ArrowLeft, Download, AlertTriangle, CheckCircle, XCircle, BarChart2, FileDown, FileSpreadsheet, ShieldAlert, Trophy } from "lucide-react";
 import Link from "next/link";
 import { createSafeClient } from "@/lib/supabase/client";
+import { useUserRole } from "@/hooks/useUserRole";
 
 const PASSING = 70;
 
@@ -14,6 +15,7 @@ function formatTime(s: number | null) {
 }
 
 export default function HasilClient({ examId }: { examId: string }) {
+  const { isSiswa, loading: roleLoading } = useUserRole();
   const [sort, setSort] = useState<"score"|"name"|"time">("score");
   const [results, setResults] = useState<any[]>([]);
   const [examInfo, setExamInfo] = useState<any>(null);
@@ -99,10 +101,19 @@ export default function HasilClient({ examId }: { examId: string }) {
       const fileName = `Hasil_Ujian_${examInfo?.title || 'Data'}_${new Date().toISOString().split('T')[0]}.xlsx`;
       XLSX.writeFile(wb, fileName);
     } catch (error) {
-      console.error(error);
-      alert("Gagal mengekspor data ke Excel.");
+      console.error("Export error:", error);
+      alert("Gagal mengekspor data.");
     }
   };
+
+  if (roleLoading) return <div className="p-8 text-center text-gray-500">Memeriksa akses...</div>;
+  if (isSiswa) return (
+    <div className="p-8 mt-10 max-w-xl mx-auto text-center rounded-2xl bg-red-50 border border-red-200">
+      <ShieldAlert className="w-12 h-12 text-red-600 mx-auto mb-4" />
+      <h2 className="text-lg font-bold text-red-900 mb-2">Akses Ditolak</h2>
+      <p className="text-sm text-red-700">Halaman ini khusus untuk Guru dan Admin. Anda tidak berhak melihat hasil ujian sebelum dipublikasikan oleh guru Anda.</p>
+    </div>
+  );
 
   const [calculating, setCalculating] = useState(false);
 

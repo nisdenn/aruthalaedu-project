@@ -46,12 +46,14 @@ export default function KesiswaanPage() {
   const [saving, setSaving] = useState(false);
 
   const fetchData = useCallback(async () => {
+    if (!identity.sekolahId) return;
     setLoading(true);
 
     // Fetch announcements
     const { data: annData, error: annError } = await supabase
       .from("announcements")
       .select("id, title, content, type, published_at, is_pinned")
+      .eq("sekolah_id", identity.sekolahId)
       .order("is_pinned", { ascending: false })
       .order("published_at", { ascending: false })
       .limit(20);
@@ -66,6 +68,7 @@ export default function KesiswaanPage() {
     const { data: ekskulData, error: ekskulError } = await supabase
       .from("extracurriculars")
       .select("id, name, description, schedule, is_active")
+      .eq("sekolah_id", identity.sekolahId)
       .eq("is_active", true)
       .order("name");
 

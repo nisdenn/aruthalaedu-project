@@ -49,11 +49,13 @@ export default function MateriPage() {
   const [saving, setSaving] = useState(false);
 
   const fetchMaterials = useCallback(async () => {
+    if (!identity.sekolahId) return;
     setLoading(true);
     const { data, error } = await supabase
       .from("materials")
       .select("id, title, description, mata_pelajaran, file_url, file_type, file_size_bytes, created_at, profiles!materials_uploaded_by_fkey(full_name)")
       .eq("is_published", true)
+      .eq("sekolah_id", identity.sekolahId)
       .order("created_at", { ascending: false });
 
     if (error) {

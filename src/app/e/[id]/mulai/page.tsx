@@ -727,13 +727,13 @@ function ExamRoomClient({ params }: { params: Promise<{ id: string }> }) {
       <footer className="h-11 bg-white border-t border-[#e3ebfa] px-4 sm:px-8 flex items-center justify-between text-[11px] text-gray-500 shrink-0">
         <div className="flex items-center gap-4">
           <span className="flex items-center gap-1.5 font-medium text-gray-700">
-            <span className="w-2 h-2 rounded-full bg-green-500" /> Fullscreen Guard Aktif
+            <CheckCircle2 className="w-3.5 h-3.5 text-green-500" /> Fullscreen Guard Aktif
           </span>
           <span className="hidden sm:flex items-center gap-1.5 font-medium text-gray-700">
-            <span className="w-2 h-2 rounded-full bg-green-500" /> Anti-Tab Switch
+            <CheckCircle2 className="w-3.5 h-3.5 text-green-500" /> Anti-Tab Switch
           </span>
           <span className="hidden md:flex items-center gap-1.5 font-medium text-gray-700">
-            <span className="w-2 h-2 rounded-full bg-green-500" /> Auto-Save Supabase
+            <CheckCircle2 className="w-3.5 h-3.5 text-green-500" /> Auto-Save Supabase
           </span>
         </div>
         <div className="font-semibold text-gray-600">

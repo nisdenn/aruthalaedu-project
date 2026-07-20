@@ -187,6 +187,7 @@ function SiswaOverview() {
           id,
           score,
           submitted_at,
+          exam_id,
           exams(title)
         `)
         .eq("siswa_id", user.id)
@@ -196,7 +197,8 @@ function SiswaOverview() {
       const [resExams, resHistory] = await Promise.all([p1, p2]);
 
       const now = new Date();
-      const validExams = (resExams.data || []).filter(e => !e.end_at || new Date(e.end_at) > now);
+      const historyIds = new Set((resHistory.data || []).map(h => h.exam_id));
+      const validExams = (resExams.data || []).filter(e => (!e.end_at || new Date(e.end_at) > now) && !historyIds.has(e.id));
       setExams(validExams);
       setHistory(resHistory.data || []);
       setLoading(false);

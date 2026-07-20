@@ -197,7 +197,7 @@ export default function ExamLandingPage({ params }: { params: Promise<{ id: stri
                 { label: "Proteksi Offline Siap", active: true },
               ].map(({ label }) => (
                 <span key={label} className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-green-50 text-green-700 border border-green-200">
-                  <span className="w-2 h-2 rounded-full bg-green-500" />
+                  <CheckCircle2 className="w-3.5 h-3.5" />
                   {label}
                 </span>
               ))}
