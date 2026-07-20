@@ -106,7 +106,7 @@ export function useDashboardIdentity() {
           // Cek profil dari database agar role & nama terjamin akurat 100%
           const { data: profile } = await client
             .from("profiles")
-            .select("id, full_name, role, nisn, sekolah_id")
+            .select("id, full_name, role, nisn, sekolah_id, yayasan_id")
             .eq("id", user.id)
             .single();
 
@@ -144,7 +144,7 @@ export function useDashboardIdentity() {
               nisn: profile?.nisn,
               userId: user.id,
               sekolahId: profile?.sekolah_id,
-              yayasanId: user.app_metadata?.yayasan_id || undefined,
+              yayasanId: profile?.yayasan_id || metadata.yayasan_id as string | undefined,
               sekolahName,
             });
           }

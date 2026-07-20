@@ -72,6 +72,11 @@ Semua perubahan (Updates, Bug Fixes, New Features) pada Dasbor AruthalaEdu akan 
 - **Komponen/Fungsi:** Fungsi `fetchMaterials`, `fetchBooks`, dan `fetchData`.
 - **Alasan Teknis:** Menghilangkan kutu (*bug*) di mana antarmuka pengguna terjebak dalam status *loading* selamanya apabila `sekolahId` belum ditemukan atau *null*. Penambahan `setLoading(false)` sebelum `return` di awal fungsi *fetch* memastikan animasi *spinner* berhenti dan UI kembali interaktif (mencegah *deadlock*).
 
+#### Poin 10: Validasi Upload Materi & Resolusi Null Yayasan ID
+- **File:** `src/app/(dashboard)/materi/page.tsx` & `src/components/layout/useDashboardIdentity.ts`
+- **Komponen/Fungsi:** Atribut input *file* (`accept`) dan Hook Identitas Global.
+- **Alasan Teknis:** Memperbaiki dua celah pada Dasbor Layanan. Pertama, menyuntikkan restriksi ekstensi *file* (seperti `.pdf` atau `.pptx`) secara dinamis ke form unggah materi agar sesuai dengan kategori yang dipilih. Kedua, menyelesaikan insiden fatal gagal-unggah ("*null value in column yayasan_id*") dengan memastikan parameter identitas diekstrak kuat secara berlapis (*fallback mechanism*) langsung dari tabel `profiles` selain *app_metadata*.
+
 ---
 
 ## [2026-07-15] - Architectural Decision Records (ADR) dari Sesi Penyelarasan `/grill-me`

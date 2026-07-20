@@ -48,6 +48,16 @@ export default function MateriPage() {
   const [uploadFile, setUploadFile] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
 
+  const getFileAccept = (type: string) => {
+    switch (type) {
+      case "PDF": return ".pdf";
+      case "PPTX": return ".ppt,.pptx";
+      case "DOCX": return ".doc,.docx";
+      case "XLSX": return ".xls,.xlsx";
+      default: return "*";
+    }
+  };
+
   const fetchMaterials = useCallback(async () => {
     if (!identity.sekolahId) {
       setLoading(false);
@@ -253,7 +263,7 @@ export default function MateriPage() {
               </div>
               <div>
                 <label className="block text-xs font-semibold text-gray-500 mb-1.5">File Dokumen</label>
-                <input type="file" onChange={(e) => setUploadFile(e.target.files?.[0] || null)} required
+                <input type="file" accept={getFileAccept(uploadForm.file_type)} onChange={(e) => setUploadFile(e.target.files?.[0] || null)} required
                   className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm outline-none focus:ring-2 focus:ring-[#2f66e9]/20" />
               </div>
               <button type="submit" disabled={saving || !uploadFile}
