@@ -67,6 +67,11 @@ Semua perubahan (Updates, Bug Fixes, New Features) pada Dasbor AruthalaEdu akan 
 - **Komponen/Fungsi:** Fungsi `handlePublish` dan Kueri Notifikasi Siswa (`isSiswa`).
 - **Alasan Teknis:** Menutup celah logika (*logical bug*) di mana guru dapat mengatur batas akhir (*endAt*) di masa lalu, membuat ujian berstatus "kadaluwarsa" namun tetap bocor ke layar Notifikasi Siswa. Modifikasi mencakup perlindungan sisi *input* pembuatan ujian, dan perlindungan *filter* iterasi pada data *fetch* Supabase agar notifikasi masa lalu tidak akan pernah dirender.
 
+#### Poin 9: Perbaikan Infinite Loading pada Layanan Sekolah
+- **File:** `materi/page.tsx`, `perpus/page.tsx`, `kesiswaan/page.tsx`
+- **Komponen/Fungsi:** Fungsi `fetchMaterials`, `fetchBooks`, dan `fetchData`.
+- **Alasan Teknis:** Menghilangkan kutu (*bug*) di mana antarmuka pengguna terjebak dalam status *loading* selamanya apabila `sekolahId` belum ditemukan atau *null*. Penambahan `setLoading(false)` sebelum `return` di awal fungsi *fetch* memastikan animasi *spinner* berhenti dan UI kembali interaktif (mencegah *deadlock*).
+
 ---
 
 ## [2026-07-15] - Architectural Decision Records (ADR) dari Sesi Penyelarasan `/grill-me`

@@ -39,7 +39,10 @@ export default function PerpusPage() {
   const [saving, setSaving] = useState(false);
 
   const fetchBooks = useCallback(async () => {
-    if (!identity.sekolahId) return;
+    if (!identity.sekolahId) {
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     const { data, error } = await supabase
       .from("library_books")

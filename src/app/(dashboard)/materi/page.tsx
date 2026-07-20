@@ -49,7 +49,10 @@ export default function MateriPage() {
   const [saving, setSaving] = useState(false);
 
   const fetchMaterials = useCallback(async () => {
-    if (!identity.sekolahId) return;
+    if (!identity.sekolahId) {
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     const { data, error } = await supabase
       .from("materials")

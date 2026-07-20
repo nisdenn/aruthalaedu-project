@@ -46,7 +46,10 @@ export default function KesiswaanPage() {
   const [saving, setSaving] = useState(false);
 
   const fetchData = useCallback(async () => {
-    if (!identity.sekolahId) return;
+    if (!identity.sekolahId) {
+      setLoading(false);
+      return;
+    }
     setLoading(true);
 
     // Fetch announcements
