@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import "./globals.css";
 import ReminderSystem from "@/components/ReminderSystem";
+import { SpeedInsights } from '@vercel/speed-insights/next';
 
 interface RootLayoutProps {
   children: ReactNode;
@@ -17,6 +18,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
       <body className="min-h-screen bg-background text-gray-900 antialiased">
         {children}
         <ReminderSystem />
+        <SpeedInsights />
       </body>
     </html>
   );
