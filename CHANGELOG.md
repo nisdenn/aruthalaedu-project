@@ -1,4 +1,4 @@
-# Changelog & History Log
+﻿# Changelog & History Log
 Semua perubahan (Updates, Bug Fixes, New Features) pada Dasbor AruthalaEdu akan didokumentasikan di sini untuk mempermudah pelacakan.
 
 ---
@@ -124,19 +124,68 @@ Semua perubahan (Updates, Bug Fixes, New Features) pada Dasbor AruthalaEdu akan 
 - **TypeScript & Type Casting Error:** Memperbaiki *crash type inference* pada properti `exam` dari `exam_sessions` di `student-hub/page.tsx`, `student-report/page.tsx`, dan `notifications/page.tsx` dengan penyesuaian casting objek.
 - **Perbaikan Properti `useDashboardStats`:** Menyelaraskan panggilan properti `totalMapel` di `academic/page.tsx` menggantikan referensi yang salah (`totalSoal`).
 
-## [2026-07-14] - Fase 1: Siklus Ujian Selesai
+## [2026-07-18] - Fase 7: Error Logging, Offline Resilience, & Form Tenant Fix
 ### Ditambahkan (Added)
-- **Auto-Grading System:** Tombol "Hitung Nilai Otomatis" di halaman Hasil Ujian. Sistem secara otomatis mencocokkan `exam_answers` dengan kunci jawaban di tabel `questions` (Pilihan Ganda & True/False) dan menyimpan `score` ke `exam_sessions`.
-- **Riwayat Ujian Siswa:** Penambahan *tab* baru "Riwayat Ujian" di Dasbor Siswa (`overview/page.tsx`) untuk menampilkan ujian yang sudah selesai (*submitted*) beserta nilai akhirnya.
-- **Rules Agents.md:** Menambahkan aturan ke-7 tentang pencatatan History Log pada setiap pembaruan.
+- **Sistem Error Logging (GlobalErrorBoundary):** Membuat komponen `GlobalErrorBoundary.tsx` yang membungkus seluruh aplikasi di `layout.tsx`. Error React kini ditangkap dengan UI fallback ("Oops, Sesuatu Salah!") dan dikirim ke tabel `error_logs` di Supabase secara otomatis.
+- **Tabel `error_logs` di Supabase:** Menjalankan migrasi SQL `006_error_logs.sql` untuk membuat tabel error_logs dengan RLS (insert publik, read admin only).
+- **Offline Resilience CBT:** Menambahkan pemanggilan `getLocalAnswers()` di fungsi `initExam` pada `src/app/e/[id]/mulai/page.tsx` agar jawaban lokal (IndexedDB/localStorage) dimuat saat halaman ujian dibuka.
 
+### Diperbaiki (Fixed)
+- **Bug Pendaftaran Sekolah (Tenant):** Menambahkan dropdown `Jenjang` (SD/SMP/SMA/SMK) dan injeksi `yayasan_id` default (UUID valid) di form `admin-hub/page.tsx`, menyelesaikan error `NOT NULL constraint violation`.
+- **Bug UUID Pembuatan Kelas:** Menghapus injeksi ID teks biasa (`cls-xxxx`) dan menggunakan UUID valid untuk `sekolah_id`/`yayasan_id` fallback di `class-management/page.tsx`.
+
+---
+
+## [2026-07-20] - Revisi Section Guru & Admin (Sprint)
+### Diperbaiki (Fixed)
+
+#### Poin 1: Auto-Hitung Waktu Selesai Ujian
+- **File:** `src/app/(dashboard)/ujian/buat/page.tsx`
+- **Komponen/Fungsi:** State hooks (`startAt`, `durationStr`), `useEffect` baru
+- **Alasan Teknis:** Sebelumnya, guru harus mengisi "Waktu Selesai" secara manual. Ini rawan human error (misalnya salah hitung jam). Sekarang, `useEffect` memantau perubahan `startAt` dan `durationStr`. Jika keduanya valid, `endAt` dihitung otomatis (`startAt + duration * 60000 ms`) dan diformat ke `datetime-local` string menggunakan local time (bukan UTC, untuk menghindari bug timezone). Input "Waktu Selesai" kini `readOnly` dengan background abu-abu sebagai indikator visual bahwa nilainya otomatis.
+
+#### Poin 2: Bug Angka Mentok di "0" (01, 02, dst.)
+- **File:** `src/app/(dashboard)/ujian/buat/page.tsx`
+- **Komponen/Fungsi:** State `duration` → `durationStr` (string), `passingScore` → `passingScoreStr` (string)
+- **Alasan Teknis:** React `<input type="number" value={numberState}>` akan memaksa `0` sebagai default saat user menghapus isi input, sehingga mengetik "1" menjadi "01". Solusinya: state disimpan sebagai string agar input bisa kosong. Konversi ke `Number()` hanya dilakukan saat publish (`const duration = Number(durationStr) || 0`), menjaga integritas data yang dikirim ke Supabase.
+
+#### Poin 3: Teks Menembus Frame (Overflow Fix)
+- **File:** `src/app/(dashboard)/teacher-hub/page.tsx`
+- **Komponen/Fungsi:** Kolom `<td>` judul ujian di tabel daftar ujian
+- **Perubahan:** Menambahkan `max-w-[250px]` dan class `truncate` pada `<p>` judul ujian dan kode ujian, sehingga teks panjang akan terpotong dengan ellipsis.
+
+- **File:** `src/app/(dashboard)/ujian/page.tsx`
+- **Komponen/Fungsi:** `<h3>` judul ujian di kartu daftar ujian
+- **Perubahan:** Menambahkan class `truncate` pada `<h3>` judul ujian agar tidak menembus batas kartu.
+
+- **File:** `src/app/(dashboard)/ujian/[id]/monitor/MonitorClient.tsx`
+- **Komponen/Fungsi:** Header exam name (`<p>`), nama siswa di panel flagged (`<span>`), nama siswa di tabel peserta (`<td>`)
+- **Perubahan:** Menambahkan inline style `overflow: hidden`, `textOverflow: ellipsis`, `whiteSpace: nowrap`, dan `maxWidth` pada tiga elemen teks yang rentan overflow: (1) header subtitle exam info (maxWidth 400px), (2) nama siswa di panel "Kondisi Koneksi" (maxWidth 140px), (3) kolom nama siswa di tabel peserta (maxWidth 180px).
+- **Alasan Teknis:** Nama ujian atau nama siswa yang sangat panjang tanpa spasi (seperti URL atau nama dengan banyak gelar) akan melampaui batas container dan merusak layout tabel/kartu. Solusi `truncate` + `ellipsis` memotong teks secara visual tanpa menghilangkan data asli.
+
+#### Poin 4: Real-time Monitoring Kecurangan (Proctor Lock)
+- **File:** `src/app/(dashboard)/ujian/[id]/monitor/MonitorClient.tsx`
+- **Komponen/Fungsi:** Interface `MonitorSession`, fungsi `fetchData`, realtime channel handler untuk `exam_sessions`, dan render tabel peserta ujian.
+- **Perubahan Detail:**
+  1. Menambahkan field `is_proctor_locked: boolean` ke interface `MonitorSession`.
+  2. Menambahkan `is_proctor_locked` ke query `select()` saat fetch initial data dari `exam_sessions`.
+  3. Memasukkan `is_proctor_locked: s.is_proctor_locked || false` saat mapping data sesi ke `formattedSessions` (dengan fallback `false` untuk row lama yang mungkin `null`).
+  4. Menambahkan `is_proctor_locked` ke handler realtime `exam_sessions` UPDATE agar status kunci proctor terupdate secara live tanpa refresh halaman.
+  5. Mengubah tampilan kolom "Status" di tabel peserta: jika `is_proctor_locked === true`, status menjadi **"Terkunci (Kecurangan)"** dengan badge merah (`#EF4444`), border merah transparan, dan dot merah — menggantikan status "Mengerjakan" yang sebelumnya tetap tampil meski siswa sudah di-lock.
+- **Alasan Teknis:** Sebelumnya, guru/pengawas yang membuka Live Monitor tidak bisa membedakan siswa yang masih aktif mengerjakan dengan siswa yang sudah dikunci oleh sistem Anti-Cheat. Keduanya sama-sama menampilkan "Mengerjakan". Sekarang, indikator visual merah langsung memberitahu pengawas bahwa siswa tersebut perlu intervensi (buka kunci) dari Monitoring Center.
 ### Diubah (Changed)
 - **Monitor Ujian Real-Time:** Penyesuaian `MonitorClient.tsx` untuk mengambil angka metrik *progress* (berapa soal terjawab) langsung berdasarkan jumlah rekaman dari tabel `exam_answers`. Total pertanyaan sekarang dinamis merujuk pada *count* dari tabel `exam_questions`.
 
-### Diperbaiki (Fixed)
-- **React Hydration & Rules of Hooks Crash:** Memperbaiki bug fatal di `/ujian/[id]/mulai/page.tsx` di mana pemanggilan Hook `useCallback` (`setAnswer`) tidak sengaja diletakkan setelah kode `if (!examData) return`, yang memicu *render crash* beruntun ketika ujian dimuat.
-- **Unique Constraint Bug (`exam_sessions`):** Memperbaiki celah logika di mana tombol "Mulai Ujian" selalu mencoba melakukan *INSERT* sesi baru dengan `attempt_number: 1` secara buta. Sistem kini memeriksa eksistensi *session* dan melanjutkan ujian yang belum selesai (*resume*) atau menambah `attempt_number` baru. Serta menyesuaikan *fetching* `siswa_id` dari *Local Storage Bypass* (bukan Supabase Auth Guru/Admin).
-
+#### Poin 5: Penyederhanaan Sidebar Admin
+- **File:** `src/components/layout/Sidebar.tsx`
+- **Komponen/Fungsi:** Array `adminSections` dan `commonSections`
+- **Perubahan Detail:**
+  - **`adminSections`:** Dipangkas dari 3 section (14 item) menjadi 2 section (8 item):
+    - Section "Manajemen": Hub Admin, User Management, Class Management, Mata Pelajaran.
+    - Section "Monitoring & Laporan": Monitoring Center, Laporan, Export Data, Schedule.
+  - **`commonSections`:** Menghapus "Fitur & Roadmap" dari navigasi umum karena jarang diakses di workflow harian dan menambah kepadatan sidebar.
+  - **Item yang dipindahkan/dihapus dari sidebar:** School Health, Exam Gate, Student Report, Teacher Report, Exam Report, Academic Year. Halaman-halaman ini tetap bisa diakses via URL langsung atau melalui shortcut di dalam Hub Admin.
+- **Alasan Teknis:** User melaporkan bahwa sidebar terlalu ramai saat login sebagai Admin, dengan 19+ menu yang membuat navigasi menjadi melelahkan. Penyederhanaan ini mengikuti prinsip "80/20 rule" — hanya menu yang paling sering diakses yang tampil di sidebar, sementara fitur sekunder tetap bisa dijangkau via halaman hub.
 ---
 
 ## [2026-07-14] - Fase 2: Manajemen Data Master
@@ -185,12 +234,11 @@ Semua perubahan (Updates, Bug Fixes, New Features) pada Dasbor AruthalaEdu akan 
 - **Pemetaan Kolom Live Monitor:** Memperbaiki kesalahan pemetaan kolom pada `MonitorClient.tsx` di mana kolom "Pelanggaran" sebelumnya salah menampilkan data "Sisa Waktu Ujian".
 - **Real-Time Progress & Live Timer:** Menambahkan *listener* `Supabase Realtime` untuk tabel `exam_answers` di layar Live Monitor Guru. Angka progres siswa (contoh: 2/15) kini akan bertambah secara otomatis tanpa memuat ulang layar. *Live timer* juga dikalibrasi agar menghitung selisih waktu dari jadwal `start_at` ujian.
 - **Keamanan Hak Akses:** Menutup celah akses menu (seperti `/akademik`, `/data-siswa`, `/data-siswa/import`) yang sebelumnya masih bisa diintip oleh siswa melalui URL *direct routing*. Sistem kini mendeteksi status `isSiswa` dan segera melempar mereka ke `/overview`.
- 
- # #   [ 2 0 2 6 - 0 7 - 1 5 ]   -   F a s e   6 :   G i t   M e r g e   &   I n t e g r a s i   U I  
- # # #   D i t a m b a h k a n   ( A d d e d )  
- -   * * P e m b a u r a n   G U I   B a r u : * *   M e n g g a b u n g k a n   p e m b a r u a n   d e s a i n   d a n   t a t a   l e t a k   b e s a r - b e s a r a n   y a n g   d i k e r j a k a n   o l e h   D e n i s   d a r i   r e p o s i t o r i   \ m a i n \ .   I n i   t e r m a s u k   p e r o m b a k a n   g a y a   k o m p o n e n   d i   \ S i d e b a r . t s x \ ,   \ H e a d e r . t s x \ ,   s e r t a   \ M o n i t o r C l i e n t . t s x \ .  
- # # #   D i p e r b a i k i   ( F i x e d )  
- -   * * M e r g e   C o n f l i c t s   R e s o l u t i o n : * *   M e n y e l e s a i k a n   p u l u h a n   k o n f l i k   G i t   ( * m e r g e   c o n f l i c t s * )   p a d a   b a n y a k   k o m p o n e n   u t a m a   y a n g   d i s e b a b k a n   o l e h   p e m b a r u a n   s i m u l t a n ,   m e n g u t a m a k a n   f o n d a s i   k o d e   b i s n i s   ( S u p a b a s e   r e a l - t i m e ,   v a l i d a s i   A u t h ,   d a n   p r o t e k s i   r u t e )   t a n p a   m e n g h i l a n g k a n   p e m b a r u a n   g r a f i s   d a r i   D e n i s .  
- -   * * P e m u l i h a n   N a v i g a s i   A m a n : * *   M e n g e m b a l i k a n   s i s t e m   p e r l i n d u n g a n   ( * b y p a s s   c l e a n u p * )   p a d a   s e s i   l o g o u t   d i   k o m p o n e n   \ S i d e b a r . t s x \ .  
-  
- 
+
+## [2026-07-15] - Fase 6: Git Merge dan Integrasi UI
+### Ditambahkan (Added)
+- **Pembaharuan GUI Baru:** Menggabungkan pembaruan desain dari Denis.
+### Diperbaiki (Fixed)
+- **Merge Conflicts Resolution:** Menyelesaikan konflik Git pada komponen utama.
+- **Pemulihan Navigasi Aman:** Mengembalikan sistem perlindungan pada sesi logout di Sidebar.tsx.
+

@@ -43,7 +43,6 @@ const commonSections: NavSection[] = [
     label: "Overview",
     items: [
       { href: "/overview", label: "Dashboard", icon: LayoutDashboard },
-      { href: "/features", label: "Fitur & Roadmap", icon: ClipboardList },
       { href: "/notifications", label: "Notifikasi", icon: UserCircle2 },
       { href: "/profile", label: "Profil", icon: UserCircle2 },
       { href: "/settings", label: "Pengaturan", icon: Settings },
@@ -109,32 +108,21 @@ const teacherSections: NavSection[] = [
 
 const adminSections: NavSection[] = [
   {
-    label: "Admin",
+    label: "Manajemen",
     items: [
       { href: "/admin-hub", label: "Hub Admin", icon: School },
       { href: "/user-management", label: "User Management", icon: Users },
       { href: "/class-management", label: "Class Management", icon: School },
-      { href: "/subject-management", label: "Subject Management", icon: BookOpen },
-      { href: "/academic-year", label: "Academic Year", icon: CalendarDays },
+      { href: "/subject-management", label: "Mata Pelajaran", icon: BookOpen },
     ],
   },
   {
-    label: "Operasional",
+    label: "Monitoring & Laporan",
     items: [
-      { href: "/school-health", label: "School Health", icon: LineChart },
       { href: "/monitoring-center", label: "Monitoring Center", icon: MonitorPlay },
-      { href: "/exam-gate", label: "Exam Gate", icon: ShieldAlert },
-      { href: "/schedule", label: "Schedule", icon: CalendarDays },
-    ],
-  },
-  {
-    label: "Laporan",
-    items: [
       { href: "/reports", label: "Laporan", icon: BarChart2 },
-      { href: "/student-report", label: "Student Report", icon: Users },
-      { href: "/teacher-report", label: "Teacher Report", icon: GraduationCap },
-      { href: "/exam-report", label: "Exam Report", icon: Files },
-      { href: "/report-export", label: "Export", icon: FileDown },
+      { href: "/report-export", label: "Export Data", icon: FileDown },
+      { href: "/schedule", label: "Schedule", icon: CalendarDays },
     ],
   },
 ];

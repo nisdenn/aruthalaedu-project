@@ -224,9 +224,9 @@ export default function TeacherHubPage() {
               <tbody className="divide-y divide-gray-100">
                 {filteredExams.map((exam) => (
                   <tr key={exam.id} className="hover:bg-[#f8fbff] transition-colors">
-                    <td className="px-5 py-4">
-                      <p className="text-sm font-semibold text-gray-900">{exam.title}</p>
-                      <p className="text-xs font-mono text-gray-400 mt-0.5">Kode Ujian: #{exam.id.slice(0, 8).toUpperCase()}</p>
+                    <td className="px-5 py-4 max-w-[250px]">
+                      <p className="text-sm font-semibold text-gray-900 truncate">{exam.title}</p>
+                      <p className="text-xs font-mono text-gray-400 mt-0.5 truncate">Kode Ujian: #{exam.id.slice(0, 8).toUpperCase()}</p>
                     </td>
                     <td className="px-5 py-4">
                       <span className="inline-flex items-center rounded-md bg-gray-100 px-2.5 py-1 text-xs font-semibold text-gray-700">

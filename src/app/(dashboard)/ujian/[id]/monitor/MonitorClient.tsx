@@ -16,6 +16,7 @@ interface MonitorSession {
   time_remaining: number;
   violations: number;
   is_flagged: boolean;
+  is_proctor_locked: boolean;
   score?: number;
 }
 
@@ -80,6 +81,7 @@ export default function MonitorClient({ examId }: { examId: string }) {
           time_remaining,
           violation_count,
           is_flagged,
+          is_proctor_locked,
           profiles(full_name, nisn)
         `)
         .eq('exam_id', examId);
@@ -111,6 +113,7 @@ export default function MonitorClient({ examId }: { examId: string }) {
           time_remaining: s.time_remaining || 0,
           violations: s.violation_count || 0,
           is_flagged: s.is_flagged || false,
+          is_proctor_locked: s.is_proctor_locked || false,
         }));
         
         setSessions(formattedSessions);
@@ -194,6 +197,7 @@ export default function MonitorClient({ examId }: { examId: string }) {
                 time_remaining: 0,
                 violations: 1,
                 is_flagged: true,
+                is_proctor_locked: false,
               },
               ...current,
             ];
@@ -225,6 +229,7 @@ export default function MonitorClient({ examId }: { examId: string }) {
                     time_remaining: row.time_remaining !== null ? row.time_remaining : session.time_remaining,
                     violations: row.violation_count !== null ? row.violation_count : session.violations,
                     is_flagged: row.is_flagged !== null ? row.is_flagged : session.is_flagged,
+                    is_proctor_locked: row.is_proctor_locked !== null ? row.is_proctor_locked : session.is_proctor_locked,
                   }
                 : session
             );
@@ -271,7 +276,7 @@ export default function MonitorClient({ examId }: { examId: string }) {
           </Link>
           <div>
             <h1 style={{ fontFamily: "var(--fd)", fontSize: 22, fontWeight: 700 }}>Live Monitor</h1>
-            <p style={{ fontSize: 13, color: "var(--t2)" }}>{examName} · {sessions.length} siswa · Exam ID {examId}</p>
+            <p style={{ fontSize: 13, color: "var(--t2)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: 400 }}>{examName} · {sessions.length} siswa · Exam ID {examId}</p>
           </div>
         </div>
         <div className="flex items-center gap-3">
@@ -355,7 +360,7 @@ export default function MonitorClient({ examId }: { examId: string }) {
             {sessions.filter((session) => session.is_flagged || session.violations > 0).slice(0, 4).map((session) => (
               <div key={session.id} className="rounded-2xl p-3" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid var(--border)" }}>
                 <div className="flex items-center justify-between gap-3 mb-1">
-                  <span style={{ fontSize: 13, fontWeight: 600 }}>{session.siswa}</span>
+                  <span style={{ fontSize: 13, fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: 140 }}>{session.siswa}</span>
                   <span style={{ fontSize: 11, color: session.is_flagged ? "var(--amber)" : "var(--t2)" }}>
                     {session.violations} pelanggaran
                   </span>
@@ -395,12 +400,12 @@ export default function MonitorClient({ examId }: { examId: string }) {
               return (
                 <tr key={r.id} style={{ borderBottom: "1px solid var(--border)", background: isFlagged ? "rgba(245,158,11,0.04)" : card.bg }}>
                   <td className="px-5 py-3.5" style={{ color: "var(--t3)" }}>{i + 1}</td>
-                  <td className="px-5 py-3.5" style={{ fontWeight: 500 }}>{r.siswa}</td>
+                  <td className="px-5 py-3.5" style={{ fontWeight: 500, maxWidth: 180, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{r.siswa}</td>
                   <td className="px-5 py-3.5" style={{ color: "var(--t2)", fontFamily: "monospace" }}>{r.nisn}</td>
                   <td className="px-5 py-3.5">
-                    <span className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs" style={{ border: `1px solid ${card.border}`, color: isFlagged ? "var(--amber)" : "var(--t2)" }}>
-                      <span className="h-1.5 w-1.5 rounded-full" style={{ background: card.dot }} />
-                      {r.status === "in_progress" ? "Mengerjakan" : r.status === "submitted" ? "Selesai" : "Belum Mulai"}
+                    <span className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs" style={{ border: `1px solid ${r.is_proctor_locked ? "rgba(239,68,68,0.3)" : card.border}`, color: r.is_proctor_locked ? "#EF4444" : isFlagged ? "var(--amber)" : "var(--t2)", background: r.is_proctor_locked ? "rgba(239,68,68,0.08)" : "transparent" }}>
+                      <span className="h-1.5 w-1.5 rounded-full" style={{ background: r.is_proctor_locked ? "#EF4444" : card.dot }} />
+                      {r.is_proctor_locked ? "Terkunci (Kecurangan)" : r.status === "in_progress" ? "Mengerjakan" : r.status === "submitted" ? "Selesai" : "Belum Mulai"}
                     </span>
                   </td>
                   <td className="px-5 py-3.5" style={{ color: "var(--t2)" }}>{r.progress}/{r.total}</td>

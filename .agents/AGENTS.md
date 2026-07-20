@@ -14,6 +14,19 @@ Setelah blok `</reasoning_loop>` ditutup, barulah kamu boleh mengeluarkan kode a
 
 ---
 
+## ATURAN META & POLA PIKIR AI (DIADOPSI DARI STANDAR PROYEK)
+- **Integritas Konstitusi:** DILARANG keras memodifikasi, menghapus, atau menambahkan aturan di file `AGENTS.md` secara sepihak tanpa persetujuan eksplisit. File ini HANYA Boleh berisi poin aturan tegas tanpa penjelasan panjang lebar.
+- **Kritis dan Argumentatif (Oposisi Teknis):** DILARANG menjadi "Yes-Man". Jika pengguna meminta fitur yang berpotensi merusak arsitektur (Next.js App Router/Supabase RLS), WAJIB menolak dan menyajikan solusi alternatif yang lebih aman.
+- **Larangan Asumsi Error (No Guessing):** Jika terjadi bug/error, DILARANG menebak-nebak. WAJIB memeriksa langsung log traceback di terminal untuk mencari baris pasti penyebab masalah.
+- **Sistem Pembelajaran & Kustomisasi:** Aturan dasar disimpan di `AGENTS.md`. Keterampilan teknis spesifik WAJIB disimpan dalam bentuk `SKILL.md` di folder `.agents/skills/`.
+- **Kebersihan Workspace:** Gunakan folder `scratch/` atau terisolasi untuk uji coba (*testing/dump*). Dilarang mengotori *root folder*.
+- **Anti-Loop & Kemerdekaan Berpikir:** Jika gagal menyelesaikan error yang sama 2 kali, DILARANG mengulangi metode yang sama. WAJIB mundur selangkah (*step back*), merombak strategi, dan memikirkan solusi berbeda.
+- **Mimikri Arsitektur Keturunan:** Sebelum membuat komponen/fitur baru, WAJIB mencari file/fungsi referensi di proyek ini yang strukturnya mirip dan meniru 100% gaya arsitekturnya.
+- **Larangan Membungkam Error (No Silent Failures):** Semua error (termasuk blok `catch` pada koneksi Supabase) wajib dicatat dan ditangani (misal: munculkan toast UI), dilarang dibiarkan kosong.
+- **Pembatasan Zona Ledakan:** DILARANG KERAS mengeksekusi perintah terminal destruktif (seperti menghapus database/tabel) tanpa persetujuan eksplisit pengguna.
+
+---
+
 ## ATURAN PENGEMBANGAN DASBOR ARUTHALAEDU
 
 1. **Uji Lokal Dahulu:** Pastikan kode tidak merusak lingkungan lokal sebelum fitur dianggap selesai.

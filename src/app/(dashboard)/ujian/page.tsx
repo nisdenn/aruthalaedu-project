@@ -93,7 +93,7 @@ export default function UjianPage() {
 
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-3 mb-1.5">
-                  <h3 className="text-sm font-semibold text-gray-900">{exam.title}</h3>
+                  <h3 className="text-sm font-semibold text-gray-900 truncate">{exam.title}</h3>
                   <span className={st?.className || "badge-default"}>{st?.label || exam.status}</span>
                 </div>
                 <div className="flex items-center gap-4 flex-wrap text-xs text-gray-500">

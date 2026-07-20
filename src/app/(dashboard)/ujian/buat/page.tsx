@@ -35,11 +35,24 @@ export default function BuatUjianPage() {
   // Form state
   const [title, setTitle] = useState("");
   const [mapel, setMapel] = useState("");
-  const [duration, setDuration] = useState(90);
+  const [durationStr, setDurationStr] = useState("90");
   const [startAt, setStartAt] = useState("");
   const [endAt, setEndAt] = useState("");
   const [maxAttempts, setMaxAttempts] = useState(1);
-  const [passingScore, setPassingScore] = useState(70);
+  const [passingScoreStr, setPassingScoreStr] = useState("70");
+
+  // Auto-hitung waktu selesai berdasarkan waktu mulai + durasi
+  useEffect(() => {
+    const dur = Number(durationStr);
+    if (!startAt || !dur || dur <= 0) return;
+    const startMs = new Date(startAt).getTime();
+    if (isNaN(startMs)) return;
+    const endDate = new Date(startMs + dur * 60000);
+    // Format ke "YYYY-MM-DDThh:mm" (local time, bukan UTC)
+    const pad = (n: number) => n.toString().padStart(2, "0");
+    const formatted = `${endDate.getFullYear()}-${pad(endDate.getMonth() + 1)}-${pad(endDate.getDate())}T${pad(endDate.getHours())}:${pad(endDate.getMinutes())}`;
+    setEndAt(formatted);
+  }, [startAt, durationStr]);
   const [showResult, setShowResult] = useState("manual");
   const [shuffleQ, setShuffleQ] = useState(true);
   const [shuffleOpts, setShuffleOpts] = useState(true);
@@ -59,6 +72,10 @@ export default function BuatUjianPage() {
   const toggleQ = (id: string) => {
     setSelectedQ(prev => prev.includes(id) ? prev.filter(q => q !== id) : [...prev, id]);
   };
+
+  // Konversi string state ke number untuk publish
+  const duration = Number(durationStr) || 0;
+  const passingScore = Number(passingScoreStr) || 0;
 
   const handlePublish = async () => {
     setSaving(true);
@@ -174,15 +191,15 @@ export default function BuatUjianPage() {
                   </div>
                   <div>
                     <label style={{ fontSize: 12, color: "var(--t3)", display: "block", marginBottom: 6 }}>Durasi (menit) *</label>
-                    <input type="number" value={duration} onChange={e => setDuration(Number(e.target.value))} min={10} max={480} style={inp} />
+                    <input type="number" value={durationStr} onChange={e => setDurationStr(e.target.value)} min={10} max={480} style={inp} />
                   </div>
                   <div>
                     <label style={{ fontSize: 12, color: "var(--t3)", display: "block", marginBottom: 6 }}>Waktu Mulai</label>
                     <input type="datetime-local" value={startAt} onChange={e => setStartAt(e.target.value)} style={inp} />
                   </div>
                   <div>
-                    <label style={{ fontSize: 12, color: "var(--t3)", display: "block", marginBottom: 6 }}>Waktu Selesai</label>
-                    <input type="datetime-local" value={endAt} onChange={e => setEndAt(e.target.value)} style={inp} />
+                    <label style={{ fontSize: 12, color: "var(--t3)", display: "block", marginBottom: 6 }}>Waktu Selesai (Otomatis)</label>
+                    <input type="datetime-local" value={endAt} readOnly style={{ ...inp, background: "#f3f4f6", cursor: "not-allowed", opacity: 0.8 }} title="Dihitung otomatis dari Waktu Mulai + Durasi" />
                   </div>
                   <div>
                     <label style={{ fontSize: 12, color: "var(--t3)", display: "block", marginBottom: 6 }}>Maks. Percobaan</label>
@@ -192,7 +209,7 @@ export default function BuatUjianPage() {
                   </div>
                   <div>
                     <label style={{ fontSize: 12, color: "var(--t3)", display: "block", marginBottom: 6 }}>Nilai KKM (%)</label>
-                    <input type="number" value={passingScore} onChange={e => setPassingScore(Number(e.target.value))} min={0} max={100} style={inp} />
+                    <input type="number" value={passingScoreStr} onChange={e => setPassingScoreStr(e.target.value)} min={0} max={100} style={inp} />
                   </div>
                 </div>
                 <div>
