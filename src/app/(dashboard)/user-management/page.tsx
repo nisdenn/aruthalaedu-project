@@ -69,7 +69,7 @@ export default function UserManagementPage() {
     setSaving(true);
     try {
       const supabase = createClient();
-      const randomId = "user-" + Math.random().toString(36).substring(2, 10);
+      const randomId = crypto.randomUUID();
       const payload: Partial<ProfileRow> = {
         id: randomId,
         full_name: newFullName.trim(),

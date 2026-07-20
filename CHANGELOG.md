@@ -102,6 +102,11 @@ Semua perubahan (Updates, Bug Fixes, New Features) pada Dasbor AruthalaEdu akan 
 - **Komponen/Fungsi:** Fitur Tambah & Hapus Ekskul (`handleEkskulSubmit`, `handleDeleteEkskul`), Modal UI, dan Manajemen State.
 - **Alasan Teknis:** Menyempurnakan pilar kedua dari Dasbor Kesiswaan (Bilah Sisi Kanan). Modifikasi ini melepaskan rantai ketergantungan *hard-coded* atau *database manual* bagi Staf (Guru/Admin) dengan menyediakan Modal Tambah Ekskul langsung dari UI. Elemen *card* ekskul juga disuntikkan tombol tong sampah (*hover-to-reveal trash icon*) untuk mencabut program ekskul yang tak lagi aktif secara mutlak dari PostgreSQL.
 
+#### Poin 16: Perbaikan Logika Injeksi Entitas (Admin Hub & User Management)
+- **File:** `admin-hub/page.tsx`, `user-management/page.tsx`
+- **Komponen/Fungsi:** Fungsi `handleRegisterSchool` dan `handleAddUser`.
+- **Alasan Teknis:** Pada `admin-hub`, ketiadaan pembuatan akun pengelola setelah sekolah baru didaftarkan menyebabkan sekolah tersebut "terbengkalai" tanpa administrator. Injeksi otomatis entri `SUPER_ADMIN` ke dalam tabel `profiles` telah ditambahkan segera setelah entitas `sekolah` sukses diinisiasi. Pada `user-management`, galat kegagalan tipe data PostgreSQL diselesaikan dengan mengganti generator ID acak berbasis karakter manual (`"user-" + Math.random()`) menjadi API asli `crypto.randomUUID()` guna memenuhi syarat ketat kolom UUID.
+
 ---
 
 ## [2026-07-15] - Architectural Decision Records (ADR) dari Sesi Penyelarasan `/grill-me`

@@ -200,6 +200,21 @@ export default function AdminHubPage() {
 
       if (error) throw error;
       
+      // Auto-generate akun Admin untuk sekolah baru
+      const newAdminId = crypto.randomUUID();
+      const { error: profileError } = await supabase.from('profiles').insert({
+        id: newAdminId,
+        sekolah_id: data.id,
+        yayasan_id: data.yayasan_id,
+        full_name: `Admin ${data.name}`,
+        role: "SUPER_ADMIN", // Role tingkat tertinggi untuk sekolah tersebut
+        is_active: true
+      });
+
+      if (profileError) {
+        console.error("Gagal membuat akun admin otomatis:", profileError);
+      }
+      
       setSchoolSuccess(`Berhasil mendaftarkan sekolah: ${data.name}`);
       setSekolahName("");
       setSekolahSlug("");
