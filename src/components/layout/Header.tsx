@@ -194,13 +194,13 @@ export default function Header() {
         <Menu className="w-4 h-4" />
       </button>
 
-      <div className="flex items-center gap-1.5 text-sm text-gray-500">
+      <div className="flex items-center gap-1.5 text-sm text-gray-500 hidden sm:flex">
         <span className="text-gray-400 tracking-wide">ARUTHALA</span>
         <ChevronRight className="w-3.5 h-3.5 text-gray-300" />
         <span className="font-medium text-gray-700 capitalize">{pageTitle}</span>
       </div>
 
-      <div className="flex-1 max-w-sm ml-auto">
+      <div className="flex-1 max-w-sm ml-auto hidden md:block">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
           <input
@@ -211,7 +211,7 @@ export default function Header() {
         </div>
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 ml-auto md:ml-0">
         <div className="relative" ref={notificationRef}>
           <button
             type="button"

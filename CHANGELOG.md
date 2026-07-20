@@ -1,4 +1,4 @@
-﻿# Changelog & History Log
+# Changelog & History Log
 Semua perubahan (Updates, Bug Fixes, New Features) pada Dasbor AruthalaEdu akan didokumentasikan di sini untuk mempermudah pelacakan.
 
 ---
@@ -186,6 +186,22 @@ Semua perubahan (Updates, Bug Fixes, New Features) pada Dasbor AruthalaEdu akan 
   - **`commonSections`:** Menghapus "Fitur & Roadmap" dari navigasi umum karena jarang diakses di workflow harian dan menambah kepadatan sidebar.
   - **Item yang dipindahkan/dihapus dari sidebar:** School Health, Exam Gate, Student Report, Teacher Report, Exam Report, Academic Year. Halaman-halaman ini tetap bisa diakses via URL langsung atau melalui shortcut di dalam Hub Admin.
 - **Alasan Teknis:** User melaporkan bahwa sidebar terlalu ramai saat login sebagai Admin, dengan 19+ menu yang membuat navigasi menjadi melelahkan. Penyederhanaan ini mengikuti prinsip "80/20 rule" — hanya menu yang paling sering diakses yang tampil di sidebar, sementara fitur sekunder tetap bisa dijangkau via halaman hub.
+
+#### Poin 6: Merge Pembaruan Denis + Collapsible Sidebar
+- **File:** `src/components/layout/Sidebar.tsx`
+- **Komponen/Fungsi:** Seluruh file di-rewrite — menambahkan komponen `CollapsibleSection`, state `collapsedSections`, dan merge dengan perubahan Denis.
+- **Perubahan Detail:**
+  1. **Git Merge `origin/main`:** Mengambil dan menggabungkan semua pembaruan Denis (5 halaman baru: absen, data-absen, kesiswaan, materi, perpus; update: DashboardShell, Header, useDashboardIdentity, offline-storage, sync-manager, ScheduleModal, student-hub, e/[id]/mulai).
+  2. **Resolusi Konflik `Sidebar.tsx`:** Menulis ulang file gabungan yang mempertahankan menu baru Denis (File Materi, Perpustakaan, Kesiswaan, Data Absen) di section "Layanan Sekolah" pada `commonSections`, sekaligus mempertahankan logika OWNER/SUPER_ADMIN dari Denis dan layout sidebar yang bersih dari kita.
+  3. **Resolusi Konflik `CHANGELOG.md`:** Menggabungkan log kedua sisi tanpa saling menimpa, membersihkan corrupted UTF-16 bytes sisa merge sebelumnya.
+  4. **Fitur Collapsible Sidebar:** Menambahkan komponen `CollapsibleSection` baru dengan:
+     - State `collapsedSections: Set<string>` untuk melacak section yang dilipat.
+     - Animasi buka-tutup super mulus menggunakan CSS Grid trick (`grid-template-rows: 0fr → 1fr`) dengan `transition-[grid-template-rows] duration-300 ease-in-out`.
+     - Ikon `ChevronDown` yang berputar 90° saat section ditutup.
+     - Auto-expand otomatis untuk section yang mengandung halaman aktif saat ini.
+     - Tombol header section yang responsif dengan hover effect.
+- **Alasan Teknis:** Sidebar dengan 6+ section (Overview, Layanan Sekolah, Admin, Operasional, Fitur Guru, Fitur Siswa) pada role OWNER sangat panjang dan memerlukan scrolling berlebihan. Fitur collapsible memungkinkan user melipat section yang tidak relevan tanpa menghilangkan akses.
+
 ---
 
 ## [2026-07-14] - Fase 2: Manajemen Data Master
@@ -241,4 +257,15 @@ Semua perubahan (Updates, Bug Fixes, New Features) pada Dasbor AruthalaEdu akan 
 ### Diperbaiki (Fixed)
 - **Merge Conflicts Resolution:** Menyelesaikan konflik Git pada komponen utama.
 - **Pemulihan Navigasi Aman:** Mengembalikan sistem perlindungan pada sesi logout di Sidebar.tsx.
+
+---
+
+## [2026-07-20] - Penyesuaian UI Dasbor Siswa, Perbaikan Bug Modal Jadwal, dan Penambahan Menu Baru (Denis)
+### Ditambahkan (Added)
+- **Menu Layanan Sekolah:** Menambahkan submenu baru pada sidebar: File Materi, Perpustakaan, Kesiswaan, dan Data Absen.
+- **Halaman Baru (materi, perpus, kesiswaan, absen):** Membangun UI halaman placeholder sederhana dengan tema Aruthala. Halaman /absen memiliki tabel absensi bulanan dengan filter dropdown dan kolom status dinamis.
+
+### Diperbaiki dan Diubah (Fixed and Changed)
+- **Pembaruan Teks KPI (student-hub/page.tsx):** Mengubah wording label dari "Sedang Dikerjakan" menjadi "Ujian hari ini".
+- **Resolusi Bug Input Waktu (schedule/ScheduleModal.tsx):** Input waktu dirombak menjadi dua elemen select kustom (Jam: 00-23, Menit: 00, 15, 30, 45).
 

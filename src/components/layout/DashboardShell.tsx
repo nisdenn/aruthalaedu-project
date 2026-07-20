@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
 import RoleGuard from "./RoleGuard";
@@ -20,7 +20,13 @@ export function useSidebar() {
 }
 
 export default function DashboardShell({ children }: { children: React.ReactNode }) {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.innerWidth >= 1024) {
+      setSidebarOpen(true);
+    }
+  }, []);
 
   return (
     <SidebarContext.Provider value={{ sidebarOpen, setSidebarOpen }}>

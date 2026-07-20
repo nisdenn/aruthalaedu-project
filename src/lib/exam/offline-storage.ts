@@ -4,18 +4,30 @@ import { openDB, type IDBPDatabase } from "idb";
 import type { LocalAnswer, LocalExamState, SessionStatus } from "@/types";
 
 const DB_NAME = "aruthala-exam";
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 const STORE_STATE = "exam_state";
 const STORE_ANSWERS = "answers";
+const STORE_EXAM_CACHE = "exam_cache";
+const STORE_PENDING_SYNC = "pending_sync";
 
 let dbPromise: Promise<IDBPDatabase> | null = null;
 
 function getDB() {
   if (!dbPromise) {
     dbPromise = openDB(DB_NAME, DB_VERSION, {
-      upgrade(db) {
-        db.createObjectStore(STORE_STATE, { keyPath: "session_id" });
-        db.createObjectStore(STORE_ANSWERS, { keyPath: "id" }); // id = session_id:question_id
+      upgrade(db, oldVersion) {
+        if (oldVersion < 1) {
+          db.createObjectStore(STORE_STATE, { keyPath: "session_id" });
+          db.createObjectStore(STORE_ANSWERS, { keyPath: "id" }); // id = session_id:question_id
+        }
+        if (oldVersion < 2) {
+          if (!db.objectStoreNames.contains(STORE_EXAM_CACHE)) {
+            db.createObjectStore(STORE_EXAM_CACHE, { keyPath: "session_id" });
+          }
+          if (!db.objectStoreNames.contains(STORE_PENDING_SYNC)) {
+            db.createObjectStore(STORE_PENDING_SYNC, { keyPath: "session_id" });
+          }
+        }
       },
     });
   }
@@ -134,3 +146,60 @@ export async function clearAllAnswers(sessionId: string): Promise<void> {
     localStorage.removeItem(`exam_answers_${sessionId}`);
   }
 }
+
+// ─── EXAM CACHE & SYNC ────────────────────────────────────────────────────────
+
+export async function saveExamDataLocal(sessionId: string, data: any): Promise<void> {
+  try {
+    const db = await getDB();
+    await db.put(STORE_EXAM_CACHE, { session_id: sessionId, data, timestamp: Date.now() });
+    localStorage.setItem(`exam_cache_${sessionId}`, JSON.stringify(data));
+  } catch {
+    localStorage.setItem(`exam_cache_${sessionId}`, JSON.stringify(data));
+  }
+}
+
+export async function loadExamDataLocal(sessionId: string): Promise<any | null> {
+  try {
+    const db = await getDB();
+    const cached = await db.get(STORE_EXAM_CACHE, sessionId);
+    if (cached) return cached.data;
+    const lsData = localStorage.getItem(`exam_cache_${sessionId}`);
+    return lsData ? JSON.parse(lsData) : null;
+  } catch {
+    const lsData = localStorage.getItem(`exam_cache_${sessionId}`);
+    return lsData ? JSON.parse(lsData) : null;
+  }
+}
+
+export async function markSessionPendingSync(sessionId: string, score: number, timeRemaining: number): Promise<void> {
+  try {
+    const db = await getDB();
+    await db.put(STORE_PENDING_SYNC, {
+      session_id: sessionId,
+      score,
+      time_remaining: timeRemaining,
+      status: "submitted",
+      timestamp: Date.now()
+    });
+  } catch (e) {
+    console.error("[offline] Failed to mark session pending sync", e);
+  }
+}
+
+export async function getPendingSessionSync(): Promise<any[]> {
+  try {
+    const db = await getDB();
+    return await db.getAll(STORE_PENDING_SYNC);
+  } catch {
+    return [];
+  }
+}
+
+export async function clearPendingSessionSync(sessionId: string): Promise<void> {
+  try {
+    const db = await getDB();
+    await db.delete(STORE_PENDING_SYNC, sessionId);
+  } catch {}
+}
+
