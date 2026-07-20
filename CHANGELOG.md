@@ -107,6 +107,11 @@ Semua perubahan (Updates, Bug Fixes, New Features) pada Dasbor AruthalaEdu akan 
 - **Komponen/Fungsi:** Fungsi `handleRegisterSchool` dan `handleAddUser`.
 - **Alasan Teknis:** Pada `admin-hub`, ketiadaan pembuatan akun pengelola setelah sekolah baru didaftarkan menyebabkan sekolah tersebut "terbengkalai" tanpa administrator. Injeksi otomatis entri `SUPER_ADMIN` ke dalam tabel `profiles` telah ditambahkan segera setelah entitas `sekolah` sukses diinisiasi. Pada `user-management`, galat kegagalan tipe data PostgreSQL diselesaikan dengan mengganti generator ID acak berbasis karakter manual (`"user-" + Math.random()`) menjadi API asli `crypto.randomUUID()` guna memenuhi syarat ketat kolom UUID.
 
+#### Poin 17: Pemusnahan Kebocoran Data Sesaat (Flicker) di User Management
+- **File:** `src/app/(dashboard)/user-management/page.tsx`
+- **Komponen/Fungsi:** Modifikasi *dependency array* pada hook `useEffect` saat memuat tabel profil.
+- **Alasan Teknis:** Terdapat *race condition* minor di mana fungsionalitas `loadProfiles()` berjalan sepersekian detik mendahului status autentikasi sekolah (`sekolah_id`), yang menyebabkan seluruh profil pengguna global seolah-olah terekspos (*flicker*) sesaat sebelum akhirnya tersaring. Penyuntikan proteksi kondisional `if (!loadingUser)` memastikan modul profil menahan proses tarikan basis data (*fetch*) sampai penarikan kredensial identitas pengguna benar-benar paripurna.
+
 ---
 
 ## [2026-07-15] - Architectural Decision Records (ADR) dari Sesi Penyelarasan `/grill-me`

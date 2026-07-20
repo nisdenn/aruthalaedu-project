@@ -18,7 +18,7 @@ export interface ProfileRow {
 }
 
 export default function UserManagementPage() {
-  const { user } = useUserRole();
+  const { user, loading: loadingUser } = useUserRole();
   const [profiles, setProfiles] = useState<ProfileRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -49,8 +49,11 @@ export default function UserManagementPage() {
   }
 
   useEffect(() => {
-    loadProfiles();
-  }, [user?.sekolah_id]);
+    // Cegah fetch prematur sebelum identitas user selesai diverifikasi
+    if (!loadingUser) {
+      loadProfiles();
+    }
+  }, [loadingUser, user?.sekolah_id]);
 
   const totalUsers = profiles.length;
   const totalGuru = profiles.filter(p => p.role === "GURU" || p.role === "SUPER_ADMIN" || p.role === "OPERATOR").length;
