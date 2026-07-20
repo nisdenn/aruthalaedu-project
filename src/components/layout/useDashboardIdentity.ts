@@ -111,15 +111,17 @@ export function useDashboardIdentity() {
             .single();
 
           let dbSchoolName: string | undefined = undefined;
+          let dbYayasanId: string | undefined = undefined;
           if (profile?.sekolah_id) {
             try {
               const { data: sekolahData } = await client
                 .from("sekolah")
-                .select("nama_sekolah")
+                .select("name, yayasan_id")
                 .eq("id", profile.sekolah_id)
                 .single();
-              if (sekolahData?.nama_sekolah) {
-                dbSchoolName = sekolahData.nama_sekolah;
+              if (sekolahData) {
+                dbSchoolName = sekolahData.name;
+                dbYayasanId = sekolahData.yayasan_id;
               }
             } catch {
               // Abaikan jika tabel sekolah belum ter-seed
@@ -144,7 +146,7 @@ export function useDashboardIdentity() {
               nisn: profile?.nisn,
               userId: user.id,
               sekolahId: profile?.sekolah_id,
-              yayasanId: profile?.yayasan_id || metadata.yayasan_id as string | undefined,
+              yayasanId: profile?.yayasan_id || dbYayasanId || metadata.yayasan_id as string | undefined,
               sekolahName,
             });
           }

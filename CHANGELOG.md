@@ -77,6 +77,11 @@ Semua perubahan (Updates, Bug Fixes, New Features) pada Dasbor AruthalaEdu akan 
 - **Komponen/Fungsi:** Atribut input *file* (`accept`) dan Hook Identitas Global.
 - **Alasan Teknis:** Memperbaiki dua celah pada Dasbor Layanan. Pertama, menyuntikkan restriksi ekstensi *file* (seperti `.pdf` atau `.pptx`) secara dinamis ke form unggah materi agar sesuai dengan kategori yang dipilih. Kedua, menyelesaikan insiden fatal gagal-unggah ("*null value in column yayasan_id*") dengan memastikan parameter identitas diekstrak kuat secara berlapis (*fallback mechanism*) langsung dari tabel `profiles` selain *app_metadata*.
 
+#### Poin 11: Penarikan Kolom yayasan_id yang Hilang dari Relasi Tabel Sekolah
+- **File:** `src/components/layout/useDashboardIdentity.ts`
+- **Komponen/Fungsi:** Fungsi Ekstraksi *dbYayasanId*.
+- **Alasan Teknis:** Memperbaiki malfungsi fatal "*yayasan_id null*" ketika profil dan *app_metadata* gagal menyediakan klaim yayasan_id. Sistem kini dengan proaktif menarik *yayasan_id* menggunakan *query* `.select("name, yayasan_id")` dari tabel relasional `sekolah`, memastikan identitas *tenant* guru terangkut sebelum eksekusi penyimpanan ke basis data.
+
 ---
 
 ## [2026-07-15] - Architectural Decision Records (ADR) dari Sesi Penyelarasan `/grill-me`
