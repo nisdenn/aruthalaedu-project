@@ -17,7 +17,7 @@ const FILTERS = ["Semua", "Aktif", "Draft", "Selesai"];
 
 export default function UjianPage() {
   const router = useRouter();
-  const { isSiswa, loading: roleLoading } = useUserRole();
+  const { user, isSiswa, loading: roleLoading } = useUserRole();
   const [filter, setFilter] = useState("Semua");
   const [exams, setExams] = useState<any[]>([]);
 
@@ -30,11 +30,22 @@ export default function UjianPage() {
   useEffect(() => {
     async function fetchExams() {
       const supabase = createClient();
-      const { data } = await supabase.from('exams').select('*').order('created_at', { ascending: false });
+      let query = supabase.from('exams').select('*').order('created_at', { ascending: false });
+      
+      // Kunci isolasi data per sekolah (Multi-Tenancy)
+      if (user?.sekolah_id) {
+        query = query.eq('sekolah_id', user.sekolah_id);
+      }
+      
+      const { data } = await query;
       if (data) setExams(data);
     }
-    fetchExams();
-  }, []);
+    
+    // Cegah fetch sebelum profil user selesai dimuat
+    if (!roleLoading) {
+      fetchExams();
+    }
+  }, [roleLoading, user?.sekolah_id]);
 
   if (roleLoading || isSiswa) {
     return <div className="p-8 text-center text-gray-500">Memeriksa akses...</div>;

@@ -117,6 +117,11 @@ Semua perubahan (Updates, Bug Fixes, New Features) pada Dasbor AruthalaEdu akan 
 - **Komponen/Fungsi:** Blok tangkapan galat (*catch block*) pada fungsi pendaftaran sekolah (`handleRegisterSchool`).
 - **Alasan Teknis:** Sebelumnya, jika admin memasukkan slug sekolah yang sudah terpakai di sistem, basis data PostgreSQL akan melemparkan kode galat mentah (error 23505: `duplicate key value violates unique constraint`) langsung ke UI yang dapat membingungkan pengguna non-teknis. Kode ini kini ditangkap secara spesifik dan ditranslasikan menjadi pesan peringatan UI yang lebih bersahabat ("Sekolah dengan Kode/Slug tersebut sudah terdaftar...").
 
+#### Poin 19: Penutupan Celah Kebocoran Data (Cross-Tenant Data Leak) di Modul Ujian & Bank Soal
+- **File:** `src/app/(dashboard)/bank-soal/page.tsx`, `src/app/(dashboard)/ujian/page.tsx`
+- **Komponen/Fungsi:** Modifikasi *dependency array* dan injeksi filter `sekolah_id` pada fungsi *fetch* di hook `useEffect`.
+- **Alasan Teknis:** Ditemukan celah fatal terkait arsitektur *multi-tenancy*. Kueri Supabase di Bank Soal dan Daftar Ujian sebelumnya mengambil *semua* baris di tabel secara global (tanpa memfilter kepemilikan sekolah), sehingga berpotensi mengekspos kerahasiaan soal antar instansi pendidikan. Perbaikan ini mengimplementasikan filter ketat `.eq('sekolah_id', user.sekolah_id)` sekaligus membentengi *race-condition* pengunduhan data (prematur) melalui *guard clause* `if (!roleLoading)`.
+
 ---
 
 ## [2026-07-15] - Architectural Decision Records (ADR) dari Sesi Penyelarasan `/grill-me`

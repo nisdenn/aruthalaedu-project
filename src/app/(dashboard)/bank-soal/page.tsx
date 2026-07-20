@@ -32,7 +32,7 @@ const SCOPE_STYLE: Record<string, { label: string; className: string }> = {
 
 export default function BankSoalPage() {
   const router = useRouter();
-  const { isSiswa, loading: roleLoading } = useUserRole();
+  const { user, isSiswa, loading: roleLoading } = useUserRole();
   const [search, setSearch] = useState("");
   const [mapel, setMapel] = useState("Semua");
   const [tingkat, setTingkat] = useState("Semua");
@@ -47,11 +47,22 @@ export default function BankSoalPage() {
   useEffect(() => {
     async function fetchData() {
       const supabase = createClient();
-      const { data } = await supabase.from('questions').select('*').order('created_at', { ascending: false });
+      let query = supabase.from('questions').select('*').order('created_at', { ascending: false });
+      
+      // Kunci isolasi data per sekolah (Multi-Tenancy)
+      if (user?.sekolah_id) {
+        query = query.eq('sekolah_id', user.sekolah_id);
+      }
+      
+      const { data } = await query;
       if (data) setQuestions(data);
     }
-    fetchData();
-  }, []);
+    
+    // Cegah fetch sebelum profil user selesai dimuat
+    if (!roleLoading) {
+      fetchData();
+    }
+  }, [roleLoading, user?.sekolah_id]);
 
   if (roleLoading || isSiswa) {
     return <div className="p-8 text-center text-gray-500">Memeriksa akses...</div>;
