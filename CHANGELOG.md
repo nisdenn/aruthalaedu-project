@@ -303,4 +303,5 @@ Semua perubahan (Updates, Bug Fixes, New Features) pada Dasbor AruthalaEdu akan 
 ### Diperbaiki dan Diubah (Fixed and Changed)
 - **Pembaruan Teks KPI (student-hub/page.tsx):** Mengubah wording label dari "Sedang Dikerjakan" menjadi "Ujian hari ini".
 - **Resolusi Bug Input Waktu (schedule/ScheduleModal.tsx):** Input waktu dirombak menjadi dua elemen select kustom (Jam: 00-23, Menit: 00, 15, 30, 45).
+- **Perbaikan UI Sidebar (Sidebar.tsx):** Memodifikasi `collapsedSections` menjadi `expandedSections` sehingga kategori menu (seperti Layanan Sekolah, Akademik) tertutup secara default saat web pertama kali dibuka, kecuali untuk kategori yang sedang aktif. Ini membuat UI pada desktop maupun mobile lebih bersih dan tidak kepenuhan.
 

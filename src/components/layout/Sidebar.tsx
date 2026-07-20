@@ -292,11 +292,29 @@ export default function Sidebar() {
   const { sidebarOpen, setSidebarOpen } = useSidebar();
   const identity = useDashboardIdentity();
 
-  // Track collapsed state per section label. Default: all open.
-  const [collapsedSections, setCollapsedSections] = useState<Set<string>>(new Set());
+  const sections = getSections(identity.roleGroup, identity.rawRole);
+
+  // Track expanded state per section label. Default: all closed.
+  const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
+  const [isInitialized, setIsInitialized] = useState(false);
+
+  // Initialize expanding the section that contains the active route
+  if (!isInitialized && !identity.loading) {
+    const initial = new Set<string>();
+    sections.forEach((group) => {
+      const hasActiveChild = group.items.some(
+        (item) => pathname === item.href || pathname.startsWith(item.href + "/")
+      );
+      if (hasActiveChild) {
+        initial.add(group.label);
+      }
+    });
+    setExpandedSections(initial);
+    setIsInitialized(true);
+  }
 
   const toggleSection = useCallback((label: string) => {
-    setCollapsedSections((prev) => {
+    setExpandedSections((prev) => {
       const next = new Set(prev);
       if (next.has(label)) {
         next.delete(label);
@@ -320,8 +338,6 @@ export default function Sidebar() {
   const handleNavClick = () => {
     if (window.innerWidth < 1024) setSidebarOpen(false);
   };
-
-  const sections = getSections(identity.roleGroup, identity.rawRole);
 
   return (
     <>
@@ -351,11 +367,7 @@ export default function Sidebar() {
         {/* Collapsible Navigation */}
         <nav className="flex-1 overflow-y-auto py-3 px-2 space-y-2">
           {sections.map((group) => {
-            // Auto-expand section that contains the active route
-            const hasActiveChild = group.items.some(
-              (item) => pathname === item.href || pathname.startsWith(item.href + "/")
-            );
-            const isOpen = hasActiveChild || !collapsedSections.has(group.label);
+            const isOpen = expandedSections.has(group.label);
 
             return (
               <CollapsibleSection
