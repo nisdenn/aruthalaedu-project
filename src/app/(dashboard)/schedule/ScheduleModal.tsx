@@ -93,13 +93,13 @@ export default function ScheduleModal({ selectedDate, onClose, onSuccess }: Sche
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-1.5">Waktu Mulai</label>
               <div className="flex items-center gap-2">
-                <select value={timeHour} onChange={e => setTimeHour(e.target.value)} className="w-full px-3 py-2.5 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm">
+                <select value={timeHour} onChange={e => setTimeHour(e.target.value)} className="w-full px-3 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-gray-900 focus:bg-white outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm">
                   {Array.from({ length: 24 }).map((_, i) => (
                     <option key={i} value={i.toString().padStart(2, '0')}>{i.toString().padStart(2, '0')}</option>
                   ))}
                 </select>
                 <span className="font-bold text-gray-400">:</span>
-                <select value={timeMinute} onChange={e => setTimeMinute(e.target.value)} className="w-full px-3 py-2.5 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm">
+                <select value={timeMinute} onChange={e => setTimeMinute(e.target.value)} className="w-full px-3 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-gray-900 focus:bg-white outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm">
                   {['00', '15', '30', '45'].map(m => (
                     <option key={m} value={m}>{m}</option>
                   ))}
@@ -108,7 +108,7 @@ export default function ScheduleModal({ selectedDate, onClose, onSuccess }: Sche
             </div>
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-1.5">Durasi (Menit)</label>
-              <select value={duration} onChange={e => setDuration(e.target.value)} className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm">
+              <select value={duration} onChange={e => setDuration(e.target.value)} className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-gray-900 focus:bg-white outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm">
                 <option value="30">30 Menit</option>
                 <option value="60">1 Jam</option>
                 <option value="90">1.5 Jam</option>

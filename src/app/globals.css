@@ -172,47 +172,31 @@ button {
   }
 }
 
-/* ── Cegah native input (time, date, select) hitam di Dark Mode OS ── */
-html,
-input[type="time"],
-input[type="date"],
-input[type="datetime-local"],
-input[type="month"],
-input[type="week"],
-select,
-option {
-  color-scheme: only light;
+/* Ultimate Fix for Native Select Black Flash on Windows */
+:root {
+  color-scheme: light only !important;
 }
 
-select,
-input[type="time"],
-input[type="date"],
-input[type="datetime-local"] {
-  background-color: #F9FAFB !important;
-  color: #1e293b !important;
+select, input, textarea {
+  color-scheme: light !important;
   -webkit-appearance: none;
+  -moz-appearance: none;
   appearance: none;
+  background-color: #ffffff;
 }
 
+/* Kembalikan panah default dropdown karena appearance: none menghilangkannya */
 select {
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
-  background-position: right 0.5rem center;
+  background-position: right 0.75rem center;
   background-repeat: no-repeat;
-  background-size: 1.5em 1.5em;
+  background-size: 1.25em 1.25em;
   padding-right: 2.5rem;
 }
 
-option {
-  background-color: #ffffff;
-  color: #1e293b;
-}
-
-input[type="time"]::-webkit-calendar-picker-indicator,
-input[type="date"]::-webkit-calendar-picker-indicator,
-input[type="datetime-local"]::-webkit-calendar-picker-indicator {
-  filter: invert(0);
-  opacity: 0.6;
-  cursor: pointer;
+select option {
+  background-color: #ffffff !important;
+  color: #111827 !important;
 }
 
 /* ── Animasi halus untuk overlay modal (cegah flash hitam) ── */
@@ -232,10 +216,4 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
 
 .modal-content {
   animation: modalSlideIn 0.2s ease-out forwards;
-}
-
-/* Fix Native Select Dropdown Black Flash Issue on Windows Dark Mode */
-select option {
-  background-color: #ffffff !important;
-  color: #111827 !important; /* gray-900 */
 }

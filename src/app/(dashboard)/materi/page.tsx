@@ -45,6 +45,7 @@ export default function MateriPage() {
   // Upload form state
   const [showUpload, setShowUpload] = useState(false);
   const [uploadForm, setUploadForm] = useState({ title: "", description: "", mata_pelajaran: "", file_type: "PDF" });
+  const [uploadFile, setUploadFile] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
 
   const fetchMaterials = useCallback(async () => {
@@ -92,31 +93,53 @@ export default function MateriPage() {
 
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!uploadForm.title) return;
+    if (!uploadForm.title || !uploadFile) {
+      alert("Harap isi judul dan pilih file.");
+      return;
+    }
     setSaving(true);
 
-    // For now, create material record with a placeholder URL
-    // Full file upload would use Supabase Storage
-    const { error } = await supabase.from("materials").insert({
-      title: uploadForm.title,
-      description: uploadForm.description || null,
-      mata_pelajaran: uploadForm.mata_pelajaran || null,
-      file_url: "#", // placeholder — would be replaced with Storage URL
-      file_type: uploadForm.file_type,
-      file_size_bytes: 0,
-      uploaded_by: identity.userId,
-      sekolah_id: identity.sekolahId,
-      yayasan_id: identity.yayasanId,
-      is_published: true,
-    });
+    try {
+      // 1. Upload file to Supabase Storage
+      const fileExt = uploadFile.name.split('.').pop();
+      const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+      const filePath = `materials/${identity.sekolahId}/${fileName}`;
 
-    setSaving(false);
-    if (error) {
-      alert("Gagal mengupload: " + error.message);
-    } else {
+      const { error: uploadError } = await supabase.storage
+        .from("aruthala-materials")
+        .upload(filePath, uploadFile);
+
+      if (uploadError) throw uploadError;
+
+      // 2. Get Public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from("aruthala-materials")
+        .getPublicUrl(filePath);
+
+      // 3. Insert into Database
+      const { error: dbError } = await supabase.from("materials").insert({
+        title: uploadForm.title,
+        description: uploadForm.description || null,
+        mata_pelajaran: uploadForm.mata_pelajaran || null,
+        file_url: publicUrl,
+        file_type: uploadForm.file_type,
+        file_size_bytes: uploadFile.size,
+        uploaded_by: identity.userId,
+        sekolah_id: identity.sekolahId,
+        yayasan_id: identity.yayasanId,
+        is_published: true,
+      });
+
+      if (dbError) throw dbError;
+
       setShowUpload(false);
       setUploadForm({ title: "", description: "", mata_pelajaran: "", file_type: "PDF" });
+      setUploadFile(null);
       fetchMaterials();
+    } catch (err: any) {
+      alert("Gagal mengupload: " + err.message);
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -223,7 +246,12 @@ export default function MateriPage() {
                 <input type="text" value={uploadForm.description} onChange={(e) => setUploadForm(p => ({ ...p, description: e.target.value }))}
                   className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm outline-none focus:ring-2 focus:ring-[#2f66e9]/20" placeholder="Opsional" />
               </div>
-              <button type="submit" disabled={saving}
+              <div>
+                <label className="block text-xs font-semibold text-gray-500 mb-1.5">File Dokumen</label>
+                <input type="file" onChange={(e) => setUploadFile(e.target.files?.[0] || null)} required
+                  className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm outline-none focus:ring-2 focus:ring-[#2f66e9]/20" />
+              </div>
+              <button type="submit" disabled={saving || !uploadFile}
                 className="w-full py-2.5 rounded-xl bg-[#2f66e9] text-white text-sm font-semibold hover:bg-[#2558d4] transition-colors disabled:opacity-50 shadow-lg shadow-[#2f66e9]/20">
                 {saving ? "Mengupload..." : "Upload Materi"}
               </button>
